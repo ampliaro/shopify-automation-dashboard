@@ -425,7 +425,7 @@ Se você já criou o bot no @BotFather, siga:
 
 ```bash
 # 1. Adicione o token no backend/.env
-TELEGRAM_BOT_TOKEN=7949937751:AAHM6RTez9B4jp9KeDzm7IoxK4r60CeiCzQ
+TELEGRAM_BOT_TOKEN=seu_token_do_botfather_aqui
 
 # 2. Obtenha seu Chat ID
 cd backend
@@ -435,7 +435,7 @@ npm run telegram:setup
 # O script mostrará seu Chat ID
 
 # 4. Adicione o Chat ID no .env
-TELEGRAM_ADMIN_CHAT_IDS=123456789
+TELEGRAM_ADMIN_CHAT_IDS=seu_chat_id_aqui
 
 # 5. Reinicie o backend
 npm run dev
