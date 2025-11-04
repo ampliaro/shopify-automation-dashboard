@@ -55,10 +55,18 @@ async function startServer() {
   // Auto-seed em produção se banco vazio
   if (env.NODE_ENV === 'production') {
     const totalOrders = countOrders({});
+    console.log(`[SEED] Checking database... ${totalOrders} orders found`);
     if (totalOrders === 0) {
       console.log('[SEED] Database empty, running auto-seed...');
-      const { seedOrdersSync } = await import('../scripts/seed-orders-sync.js');
-      await seedOrdersSync();
+      try {
+        const { seedOrdersSync } = await import('../scripts/seed-orders-sync.js');
+        await seedOrdersSync();
+        console.log('[SEED] ✅ Auto-seed completed successfully');
+      } catch (error) {
+        console.error('[SEED] ❌ Auto-seed failed:', error.message);
+      }
+    } else {
+      console.log('[SEED] ✅ Database already populated, skipping seed');
     }
   }
 

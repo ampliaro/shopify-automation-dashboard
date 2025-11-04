@@ -202,8 +202,14 @@ export async function seedOrdersSync() {
       }
     }
     
-    console.log('[SEED] ✅ Seed concluído!');
-    console.log(`[SEED] 📊 ${numOrders} pedidos: ${sentCount} enviados, ${failedCount} falhados, ${receivedCount} recebidos`);
+    console.log('[SEED] ✅ Seed concluído com sucesso!');
+    console.log(`[SEED] 📊 Estatísticas:`);
+    console.log(`[SEED]   • Total: ${numOrders} pedidos`);
+    console.log(`[SEED]   • Enviados: ${sentCount} (${(sentCount/numOrders*100).toFixed(1)}%)`);
+    console.log(`[SEED]   • Falhados: ${failedCount} (${(failedCount/numOrders*100).toFixed(1)}%)`);
+    console.log(`[SEED]   • Recebidos: ${receivedCount} (${(receivedCount/numOrders*100).toFixed(1)}%)`);
+    console.log(`[SEED]   • Período: últimos 30 dias`);
+    console.log('[SEED] 🎉 Demo data ready!');
     
     return true;
   } catch (error) {
