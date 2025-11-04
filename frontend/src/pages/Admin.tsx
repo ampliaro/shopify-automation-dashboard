@@ -164,13 +164,13 @@ export default function Admin() {
     setOffset(0);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: any) => {
     e.preventDefault();
     setOffset(0);
     loadOrders();
   };
 
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelectAll = (e: any) => {
     if (e.target.checked) {
       const failedIds = orders.filter(o => o.status === 'failed').map(o => o.id);
       setSelectedOrders(new Set(failedIds));
