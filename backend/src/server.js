@@ -78,6 +78,13 @@ async function startServer() {
     next();
   });
 
+  // Serve arquivos estáticos do frontend em produção
+  if (env.NODE_ENV === 'production') {
+    const frontendPath = path.resolve(__dirname, '../../frontend/dist');
+    app.use(express.static(frontendPath));
+    console.log(`[SERVER] Serving frontend from: ${frontendPath}`);
+  }
+
   // JSON parser para rotas normais
   app.use(express.json());
 
@@ -474,17 +481,25 @@ async function startServer() {
     });
   });
 
-  // 404 handler
-  app.use((req, res) => {
-    res.status(404).json({ error: 'Route not found' });
-  });
+  // SPA fallback - serve index.html para rotas não-API em produção
+  if (env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+      const frontendPath = path.resolve(__dirname, '../../frontend/dist');
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    });
+  } else {
+    // 404 handler para desenvolvimento
+    app.use((req, res) => {
+      res.status(404).json({ error: 'Route not found' });
+    });
+  }
 
   // ============================================================================
   // SERVER START
   // ============================================================================
 
-  const server = app.listen(PORT, () => {
-    console.log(`[SERVER] Running on http://localhost:${PORT}`);
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[SERVER] Running on http://0.0.0.0:${PORT}`);
     console.log(`[SERVER] Environment: ${env.NODE_ENV}`);
     console.log(`[SERVER] Database: ${dbPath}`);
   });

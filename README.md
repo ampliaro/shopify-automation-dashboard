@@ -18,19 +18,40 @@
 [![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4?logo=telegram&logoColor=white)](https://core.telegram.org/bots)
 
 <p align="center">
+  <strong>🌐 <a href="#-deploy">Demo Online Disponível</a></strong>
+</p>
+
+<p align="center">
   <i>Desenvolvido por <a href="https://github.com/ampliaro">Ampliaro Studio</a></i>
 </p>
 
 ---
 
 [Features](#-features) •
-[Demo](#-demo-rápida) •
+[Demo Local](#-demo-rápida) •
+[Deploy](#-deploy) •
 [Instalação](#-instalação) •
 [Documentação](#-documentação) •
-[Arquitetura](#-arquitetura) •
+[Telegram Bot](#-comandos-do-telegram) •
 [Contribuir](#-contribuindo)
 
 </div>
+
+---
+
+## 🌐 Deploy
+
+### Demo Online (Render.com)
+
+**Instruções completas de deploy**: [DEPLOY_RENDER.md](DEPLOY_RENDER.md)
+
+Deploy gratuito no Render.com em ~15 minutos:
+- ✅ Frontend + Backend juntos
+- ✅ Auto-deploy (push → deploy automático)
+- ✅ SSL/HTTPS grátis
+- ✅ Dados de demonstração pré-populados
+
+⏳ *Free tier hiberna após 15min - primeira request leva ~30s*
 
 ---
 
