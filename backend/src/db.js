@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import initSqlJs from 'sql.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -7,24 +7,46 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let db = null;
+let dbPath = null;
 
 /**
  * Inicializa o banco de dados SQLite
  */
-export function initDb(dbPath) {
+export async function initDb(dbFilePath) {
+  dbPath = dbFilePath;
+  
   // Garante que o diretório existe
   const dbDir = path.dirname(dbPath);
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
   }
 
-  db = new Database(dbPath);
-  db.pragma('journal_mode = WAL'); // Write-Ahead Logging para melhor performance
+  const SQL = await initSqlJs();
+  
+  // Carrega banco existente ou cria novo
+  if (fs.existsSync(dbPath)) {
+    const buffer = fs.readFileSync(dbPath);
+    db = new SQL.Database(buffer);
+  } else {
+    db = new SQL.Database();
+  }
 
   runMigrations();
+  saveDb();
   
   console.log(`[DB] Database initialized at ${dbPath}`);
   return db;
+}
+
+/**
+ * Salva o banco de dados no disco
+ */
+function saveDb() {
+  if (db && dbPath) {
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    fs.writeFileSync(dbPath, buffer);
+  }
 }
 
 /**
@@ -42,7 +64,7 @@ export function getDb() {
  */
 function runMigrations() {
   // Tabela de pedidos
-  db.exec(`
+  db.run(`
     CREATE TABLE IF NOT EXISTS orders (
       id TEXT PRIMARY KEY,
       created_at DATETIME DEFAULT (datetime('now')),
@@ -54,7 +76,7 @@ function runMigrations() {
   `);
 
   // Tabela de webhook IDs para idempotência
-  db.exec(`
+  db.run(`
     CREATE TABLE IF NOT EXISTS webhook_ids (
       webhook_id TEXT PRIMARY KEY,
       received_at DATETIME DEFAULT (datetime('now'))
@@ -62,11 +84,11 @@ function runMigrations() {
   `);
 
   // Índices para performance
-  db.exec(`
+  db.run(`
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)
   `);
 
-  db.exec(`
+  db.run(`
     CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)
   `);
 
@@ -78,12 +100,12 @@ function runMigrations() {
  */
 export function createOrder(id, payload, status = 'received') {
   const db = getDb();
-  const stmt = db.prepare(`
-    INSERT INTO orders (id, payload, status)
-    VALUES (?, ?, ?)
-  `);
-  
-  return stmt.run(id, JSON.stringify(payload), status);
+  db.run(
+    `INSERT INTO orders (id, payload, status) VALUES (?, ?, ?)`,
+    [id, JSON.stringify(payload), status]
+  );
+  saveDb();
+  return { changes: 1 };
 }
 
 /**
@@ -106,8 +128,9 @@ export function updateOrderStatus(id, status, lastError = null, incrementAttempt
   query += ` WHERE id = ?`;
   params.push(id);
   
-  const stmt = db.prepare(query);
-  return stmt.run(...params);
+  db.run(query, params);
+  saveDb();
+  return { changes: 1 };
 }
 
 /**
@@ -138,8 +161,13 @@ export function getOrders(filters = {}) {
     params.push(parseInt(filters.offset, 10));
   }
 
-  const stmt = db.prepare(query);
-  const rows = stmt.all(...params);
+  const stmt = db.prepare(query, params);
+  const rows = [];
+  
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
 
   // Parse do payload JSON
   return rows.map(row => ({
@@ -153,8 +181,13 @@ export function getOrders(filters = {}) {
  */
 export function getOrderById(id) {
   const db = getDb();
-  const stmt = db.prepare('SELECT * FROM orders WHERE id = ?');
-  const row = stmt.get(id);
+  const stmt = db.prepare('SELECT * FROM orders WHERE id = ?', [id]);
+  
+  let row = null;
+  if (stmt.step()) {
+    row = stmt.getAsObject();
+  }
+  stmt.free();
   
   if (!row) {
     return null;
@@ -180,8 +213,13 @@ export function countOrders(filters = {}) {
     params.push(filters.status);
   }
 
-  const stmt = db.prepare(query);
-  const result = stmt.get(...params);
+  const stmt = db.prepare(query, params);
+  let result = { total: 0 };
+  
+  if (stmt.step()) {
+    result = stmt.getAsObject();
+  }
+  stmt.free();
   
   return result.total;
 }

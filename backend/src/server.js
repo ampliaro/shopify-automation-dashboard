@@ -38,9 +38,9 @@ try {
 const app = express();
 const PORT = parseInt(env.PORT, 10);
 
-// Inicializa banco de dados
+// Inicializa banco de dados (assíncrono com sql.js)
 const dbPath = path.resolve(__dirname, '..', env.DATABASE_URL);
-initDb(dbPath);
+await initDb(dbPath);
 
 // CORS restrito ao frontend local
 app.use(cors({
@@ -72,7 +72,9 @@ app.get('/healthz', (req, res) => {
   try {
     const db = getDb();
     // Testa conexão com DB
-    db.prepare('SELECT 1').get();
+    const stmt = db.prepare('SELECT 1');
+    stmt.step();
+    stmt.free();
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   } catch (error) {
     res.status(503).json({ status: 'error', error: error.message });

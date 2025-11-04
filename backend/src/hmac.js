@@ -65,7 +65,7 @@ export function validateHmac(secret) {
  * Middleware de idempotência
  * Rejeita webhooks duplicados baseado no X-Shopify-Webhook-Id
  */
-export function checkIdempotency(req, res, next) {
+export async function checkIdempotency(req, res, next) {
   const webhookId = req.get('X-Shopify-Webhook-Id');
 
   if (!webhookId) {
@@ -76,7 +76,13 @@ export function checkIdempotency(req, res, next) {
 
   try {
     // Verifica se já recebemos este webhook
-    const existing = db.prepare('SELECT webhook_id FROM webhook_ids WHERE webhook_id = ?').get(webhookId);
+    const stmt = db.prepare('SELECT webhook_id FROM webhook_ids WHERE webhook_id = ?', [webhookId]);
+    let existing = null;
+    
+    if (stmt.step()) {
+      existing = stmt.getAsObject();
+    }
+    stmt.free();
 
     if (existing) {
       console.log(`[IDEMPOTENCY] Rejected duplicate webhook: ${webhookId}`);
@@ -84,7 +90,14 @@ export function checkIdempotency(req, res, next) {
     }
 
     // Registra o webhook ID
-    db.prepare('INSERT INTO webhook_ids (webhook_id, received_at) VALUES (?, datetime("now"))').run(webhookId);
+    db.run('INSERT INTO webhook_ids (webhook_id, received_at) VALUES (?, datetime("now"))', [webhookId]);
+
+    // Salva mudanças no banco
+    const fs = await import('fs');
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    const dbPath = process.env.DATABASE_URL || './data/app.db';
+    fs.writeFileSync(dbPath, buffer);
 
     // Anexa o webhook ID ao request para uso posterior
     req.webhookId = webhookId;
