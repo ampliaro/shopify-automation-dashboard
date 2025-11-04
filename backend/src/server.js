@@ -35,12 +35,14 @@ try {
   process.exit(1);
 }
 
-const app = express();
-const PORT = parseInt(env.PORT, 10);
+// Função principal assíncrona
+async function startServer() {
+  const app = express();
+  const PORT = parseInt(env.PORT, 10);
 
-// Inicializa banco de dados (assíncrono com sql.js)
-const dbPath = path.resolve(__dirname, '..', env.DATABASE_URL);
-await initDb(dbPath);
+  // Inicializa banco de dados (assíncrono com sql.js)
+  const dbPath = path.resolve(__dirname, '..', env.DATABASE_URL);
+  await initDb(dbPath);
 
 // CORS restrito ao frontend local
 app.use(cors({
@@ -240,28 +242,35 @@ app.use((req, res) => {
 // SERVER START
 // ============================================================================
 
-const server = app.listen(PORT, () => {
-  console.log(`[SERVER] Running on http://localhost:${PORT}`);
-  console.log(`[SERVER] Environment: ${env.NODE_ENV}`);
-  console.log(`[SERVER] Database: ${dbPath}`);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('[SERVER] SIGTERM received, closing server...');
-  server.close(() => {
-    console.log('[SERVER] Server closed');
-    process.exit(0);
+  const server = app.listen(PORT, () => {
+    console.log(`[SERVER] Running on http://localhost:${PORT}`);
+    console.log(`[SERVER] Environment: ${env.NODE_ENV}`);
+    console.log(`[SERVER] Database: ${dbPath}`);
   });
-});
 
-process.on('SIGINT', () => {
-  console.log('[SERVER] SIGINT received, closing server...');
-  server.close(() => {
-    console.log('[SERVER] Server closed');
-    process.exit(0);
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('[SERVER] SIGTERM received, closing server...');
+    server.close(() => {
+      console.log('[SERVER] Server closed');
+      process.exit(0);
+    });
   });
-});
 
-export default app;
+  process.on('SIGINT', () => {
+    console.log('[SERVER] SIGINT received, closing server...');
+    server.close(() => {
+      console.log('[SERVER] Server closed');
+      process.exit(0);
+    });
+  });
+
+  return app;
+}
+
+// Inicia o servidor
+startServer().catch(error => {
+  console.error('[SERVER] Failed to start:', error);
+  process.exit(1);
+});
 
