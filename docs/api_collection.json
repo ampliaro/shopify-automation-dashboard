@@ -1,0 +1,104 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "resources": [
+    {
+      "_type": "request_group",
+      "name": "Shopify Automation API",
+      "description": "Coleção de endpoints da API de automação Shopify",
+      "environment": {},
+      "requests": [
+        {
+          "_type": "request",
+          "name": "Health Check",
+          "method": "GET",
+          "url": "{{ base_url }}/healthz",
+          "description": "Verifica saúde da API e conexão com banco de dados"
+        },
+        {
+          "_type": "request",
+          "name": "Webhook Shopify",
+          "method": "POST",
+          "url": "{{ base_url }}/webhook/shopify",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Shopify-Hmac-Sha256",
+              "value": "{{ hmac }}",
+              "description": "Gerar com test/hmac-test.js"
+            },
+            {
+              "name": "X-Shopify-Webhook-Id",
+              "value": "test-webhook-{{ $timestamp }}",
+              "description": "ID único para idempotência"
+            }
+          ],
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"id\": 5678901234,\n  \"email\": \"customer@example.com\",\n  \"total_price\": \"299.00\",\n  \"line_items\": []\n}"
+          },
+          "description": "Recebe webhook de pedido do Shopify"
+        },
+        {
+          "_type": "request",
+          "name": "Listar Pedidos (Todos)",
+          "method": "GET",
+          "url": "{{ base_url }}/orders",
+          "description": "Lista todos os pedidos"
+        },
+        {
+          "_type": "request",
+          "name": "Listar Pedidos (Failed)",
+          "method": "GET",
+          "url": "{{ base_url }}/orders?status=failed",
+          "description": "Lista apenas pedidos com status 'failed'"
+        },
+        {
+          "_type": "request",
+          "name": "Listar Pedidos (Paginado)",
+          "method": "GET",
+          "url": "{{ base_url }}/orders?limit=10&offset=0",
+          "description": "Lista pedidos com paginação"
+        },
+        {
+          "_type": "request",
+          "name": "Retry Pedido",
+          "method": "POST",
+          "url": "{{ base_url }}/orders/{{ order_id }}/retry",
+          "description": "Retenta envio de pedido falhado"
+        },
+        {
+          "_type": "request",
+          "name": "Mock Fulfillment",
+          "method": "POST",
+          "url": "{{ base_url }}/mock/fulfillment",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mimeType": "application/json",
+            "text": "{\n  \"order_id\": \"5678901234\",\n  \"items\": []\n}"
+          },
+          "description": "Endpoint mock de fulfillment (apenas se ENABLE_MOCK=true)"
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "name": "Local",
+      "data": {
+        "base_url": "http://localhost:3001",
+        "hmac": "gerar_com_hmac_test_js",
+        "order_id": "5678901234"
+      }
+    }
+  ]
+}
+

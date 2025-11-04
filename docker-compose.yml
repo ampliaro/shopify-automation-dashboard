@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shopify-automation-api
+    ports:
+      - "3001:3001"
+    environment:
+      - SHOPIFY_SHARED_SECRET=${SHOPIFY_SHARED_SECRET:-your_secret_here}
+      - FULFILLMENT_URL=http://api:3001/mock/fulfillment
+      - PORT=3001
+      - DATABASE_URL=/app/data/app.db
+      - NODE_ENV=${NODE_ENV:-production}
+      - ENABLE_MOCK=${ENABLE_MOCK:-true}
+    volumes:
+      - ./backend/data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - shopify-net
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: shopify-automation-web
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_BASE=http://localhost:3001
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - shopify-net
+
+networks:
+  shopify-net:
+    driver: bridge
+
+volumes:
+  db-data:
+

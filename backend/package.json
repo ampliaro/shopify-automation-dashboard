@@ -1,0 +1,26 @@
+{
+  "name": "shopify-automation-backend",
+  "version": "1.0.0",
+  "description": "Backend for Shopify webhook automation",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": ["shopify", "webhook", "automation"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^9.2.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3"
+  }
+}
+
