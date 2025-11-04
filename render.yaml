@@ -21,9 +21,9 @@ services:
       - key: FULFILLMENT_URL
         value: http://localhost:10000/mock/fulfillment
       - key: SHOPIFY_SHARED_SECRET
-        generateValue: true
+        value: demo_secret_for_portfolio_only
       - key: ADMIN_TOKEN
-        generateValue: true
+        value: demo_token_portfolio_2025
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_ADMIN_CHAT_IDS
