@@ -6,12 +6,7 @@ services:
     region: oregon
     plan: free
     buildCommand: |
-      # Build frontend (instala devDependencies também)
-      cd frontend && npm install --include=dev && npm run build
-      # Install backend dependencies (só production)
-      cd ../backend && npm install --omit=dev
-      # Seed demo data
-      npm run seed
+      cd frontend && npm install && npm run build && cd ../backend && npm install && npm run seed
     startCommand: |
       cd backend && NODE_ENV=production node src/server.js
     envVars:
