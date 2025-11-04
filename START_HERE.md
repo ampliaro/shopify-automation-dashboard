@@ -9,6 +9,8 @@ Guia detalhado para configurar e testar o Shopify Automation MVP.
 - **Docker** (opcional, para deploy com containers)
 - **Git**
 
+> **Nota**: Este projeto usa `sql.js` (SQLite em WASM) ao invés de `better-sqlite3`, então **não é necessário** Visual Studio Build Tools no Windows.
+
 ## Variáveis de Ambiente
 
 ### Backend (`backend/.env`)
