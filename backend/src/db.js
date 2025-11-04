@@ -71,7 +71,9 @@ function runMigrations() {
       status TEXT CHECK(status IN ('received', 'sent', 'failed')) NOT NULL,
       payload TEXT NOT NULL,
       last_error TEXT,
-      attempts INTEGER DEFAULT 0
+      attempts INTEGER DEFAULT 0,
+      sent_at DATETIME NULL,
+      note TEXT
     )
   `);
 
@@ -83,6 +85,17 @@ function runMigrations() {
     )
   `);
 
+  // Tabela de logs de pedidos
+  db.run(`
+    CREATE TABLE IF NOT EXISTS order_logs (
+      id TEXT PRIMARY KEY,
+      order_id TEXT NOT NULL,
+      event TEXT NOT NULL,
+      message TEXT,
+      created_at DATETIME DEFAULT (datetime('now'))
+    )
+  `);
+
   // Índices para performance
   db.run(`
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)
@@ -90,6 +103,10 @@ function runMigrations() {
 
   db.run(`
     CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)
+  `);
+
+  db.run(`
+    CREATE INDEX IF NOT EXISTS idx_order_logs_order_id ON order_logs(order_id)
   `);
 
   console.log('[DB] Migrations completed');
@@ -111,7 +128,7 @@ export function createOrder(id, payload, status = 'received') {
 /**
  * Atualiza o status de um pedido
  */
-export function updateOrderStatus(id, status, lastError = null, incrementAttempts = false) {
+export function updateOrderStatus(id, status, lastError = null, incrementAttempts = false, sentAt = null) {
   const db = getDb();
   
   let query = `
@@ -123,6 +140,11 @@ export function updateOrderStatus(id, status, lastError = null, incrementAttempt
   
   if (incrementAttempts) {
     query += `, attempts = attempts + 1`;
+  }
+  
+  if (sentAt !== null) {
+    query += `, sent_at = ?`;
+    params.push(sentAt);
   }
   
   query += ` WHERE id = ?`;
@@ -211,6 +233,201 @@ export function countOrders(filters = {}) {
   if (filters.status) {
     query += ' AND status = ?';
     params.push(filters.status);
+  }
+
+  const stmt = db.prepare(query, params);
+  let result = { total: 0 };
+  
+  if (stmt.step()) {
+    result = stmt.getAsObject();
+  }
+  stmt.free();
+  
+  return result.total;
+}
+
+/**
+ * Cria um log de evento para um pedido
+ */
+export function createOrderLog(orderId, event, message = null) {
+  const db = getDb();
+  const logId = `${orderId}-${event}-${Date.now()}`;
+  
+  db.run(
+    `INSERT INTO order_logs (id, order_id, event, message) VALUES (?, ?, ?, ?)`,
+    [logId, orderId, event, message]
+  );
+  saveDb();
+  return { id: logId };
+}
+
+/**
+ * Busca logs de um pedido
+ */
+export function getOrderLogs(orderId) {
+  const db = getDb();
+  const stmt = db.prepare(
+    'SELECT * FROM order_logs WHERE order_id = ? ORDER BY created_at ASC',
+    [orderId]
+  );
+  
+  const rows = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+  
+  return rows;
+}
+
+/**
+ * Atualiza a nota de um pedido
+ */
+export function updateOrderNote(orderId, note) {
+  const db = getDb();
+  db.run('UPDATE orders SET note = ? WHERE id = ?', [note, orderId]);
+  saveDb();
+  return { changes: 1 };
+}
+
+/**
+ * Calcula range de datas baseado no período
+ */
+function getDateRangeForOrders(range) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let startDate;
+
+  switch (range) {
+    case 'today':
+      startDate = today;
+      break;
+    case '7d':
+      startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - 7);
+      break;
+    case '30d':
+      startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - 30);
+      break;
+    default:
+      return null;
+  }
+
+  return {
+    startDate: startDate.toISOString(),
+    endDate: now.toISOString()
+  };
+}
+
+/**
+ * Busca pedidos com filtros, incluindo busca por texto
+ */
+export function searchOrders(filters = {}) {
+  const db = getDb();
+  
+  let query = 'SELECT * FROM orders WHERE 1=1';
+  const params = [];
+
+  if (filters.status) {
+    query += ' AND status = ?';
+    params.push(filters.status);
+  }
+
+  // Busca por ID ou email no payload
+  if (filters.q) {
+    query += ' AND (id LIKE ? OR payload LIKE ?)';
+    const searchTerm = `%${filters.q}%`;
+    params.push(searchTerm, searchTerm);
+  }
+
+  // Filtro por range de data
+  if (filters.range) {
+    const dateRange = getDateRangeForOrders(filters.range);
+    if (dateRange) {
+      query += ' AND created_at >= ? AND created_at <= ?';
+      params.push(dateRange.startDate, dateRange.endDate);
+    }
+  }
+
+  // Filtro por data específica (para drill-down do gráfico)
+  if (filters.specificDate) {
+    const date = new Date(filters.specificDate);
+    const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+    
+    query += ' AND created_at >= ? AND created_at < ?';
+    params.push(startOfDay.toISOString(), endOfDay.toISOString());
+  }
+
+  // Ordenação por data de criação (mais recentes primeiro)
+  query += ' ORDER BY created_at DESC';
+
+  // Paginação
+  if (filters.limit) {
+    query += ' LIMIT ?';
+    params.push(parseInt(filters.limit, 10));
+  }
+
+  if (filters.offset) {
+    query += ' OFFSET ?';
+    params.push(parseInt(filters.offset, 10));
+  }
+
+  const stmt = db.prepare(query, params);
+  const rows = [];
+  
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+
+  // Parse do payload JSON
+  return rows.map(row => ({
+    ...row,
+    payload: JSON.parse(row.payload)
+  }));
+}
+
+/**
+ * Conta pedidos com filtros, incluindo busca
+ */
+export function countOrdersWithSearch(filters = {}) {
+  const db = getDb();
+  
+  let query = 'SELECT COUNT(*) as total FROM orders WHERE 1=1';
+  const params = [];
+
+  if (filters.status) {
+    query += ' AND status = ?';
+    params.push(filters.status);
+  }
+
+  if (filters.q) {
+    query += ' AND (id LIKE ? OR payload LIKE ?)';
+    const searchTerm = `%${filters.q}%`;
+    params.push(searchTerm, searchTerm);
+  }
+
+  // Filtro por range de data
+  if (filters.range) {
+    const dateRange = getDateRangeForOrders(filters.range);
+    if (dateRange) {
+      query += ' AND created_at >= ? AND created_at <= ?';
+      params.push(dateRange.startDate, dateRange.endDate);
+    }
+  }
+
+  // Filtro por data específica (para drill-down do gráfico)
+  if (filters.specificDate) {
+    const date = new Date(filters.specificDate);
+    const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+    
+    query += ' AND created_at >= ? AND created_at < ?';
+    params.push(startOfDay.toISOString(), endOfDay.toISOString());
   }
 
   const stmt = db.prepare(query, params);

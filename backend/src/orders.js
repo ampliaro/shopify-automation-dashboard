@@ -1,4 +1,4 @@
-import { createOrder, updateOrderStatus, getOrderById } from './db.js';
+import { createOrder, updateOrderStatus, getOrderById, createOrderLog } from './db.js';
 
 /**
  * Envia pedido para API de fulfillment
@@ -36,23 +36,28 @@ export async function processOrder(orderId, payload, fulfillmentUrl) {
   try {
     // Cria pedido com status 'received'
     createOrder(orderId, payload, 'received');
+    createOrderLog(orderId, 'created', 'Order received from webhook');
     console.log(`[ORDER] Created order ${orderId} with status 'received'`);
 
     // Envia para fulfillment
     const result = await sendToFulfillment(orderId, payload, fulfillmentUrl);
 
     if (result.success) {
-      updateOrderStatus(orderId, 'sent', null, true);
+      const sentAt = new Date().toISOString();
+      updateOrderStatus(orderId, 'sent', null, true, sentAt);
+      createOrderLog(orderId, 'sent', 'Order sent to fulfillment successfully');
       console.log(`[ORDER] Order ${orderId} sent to fulfillment successfully`);
       return { success: true, status: 'sent' };
     } else {
       updateOrderStatus(orderId, 'failed', result.error, true);
+      createOrderLog(orderId, 'failed', result.error);
       console.error(`[ORDER] Order ${orderId} failed to send to fulfillment`);
       return { success: false, status: 'failed', error: result.error };
     }
   } catch (error) {
     console.error(`[ORDER] Error processing order ${orderId}:`, error.message);
     updateOrderStatus(orderId, 'failed', error.message, true);
+    createOrderLog(orderId, 'failed', error.message);
     return { success: false, status: 'failed', error: error.message };
   }
 }
@@ -72,16 +77,20 @@ export async function retryOrder(orderId, fulfillmentUrl) {
   }
 
   console.log(`[ORDER] Retrying order ${orderId} (attempt ${order.attempts + 1})`);
+  createOrderLog(orderId, 'retry', `Retry attempt ${order.attempts + 1}`);
 
   // Envia novamente para fulfillment
   const result = await sendToFulfillment(orderId, order.payload, fulfillmentUrl);
 
   if (result.success) {
-    updateOrderStatus(orderId, 'sent', null, true);
+    const sentAt = new Date().toISOString();
+    updateOrderStatus(orderId, 'sent', null, true, sentAt);
+    createOrderLog(orderId, 'sent', 'Order sent to fulfillment successfully after retry');
     console.log(`[ORDER] Order ${orderId} retry successful`);
     return { success: true, status: 'sent' };
   } else {
     updateOrderStatus(orderId, 'failed', result.error, true);
+    createOrderLog(orderId, 'failed', result.error);
     console.error(`[ORDER] Order ${orderId} retry failed`);
     return { success: false, status: 'failed', error: result.error };
   }

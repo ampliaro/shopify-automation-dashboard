@@ -8,16 +8,22 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "node --test test/*.test.js",
-    "seed": "node scripts/seed-orders.js"
+    "seed": "node scripts/seed-orders.js",
+    "telegram:setup": "node scripts/get-telegram-chat-id.js"
   },
-  "keywords": ["shopify", "webhook", "automation"],
+  "keywords": [
+    "shopify",
+    "webhook",
+    "automation"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "sql.js": "^1.10.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "node-telegram-bot-api": "^0.66.0",
+    "sql.js": "^1.10.3",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -25,4 +31,3 @@
     "supertest": "^6.3.3"
   }
 }
-
