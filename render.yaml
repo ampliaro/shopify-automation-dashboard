@@ -6,10 +6,10 @@ services:
     region: oregon
     plan: free
     buildCommand: |
-      # Build frontend
-      cd frontend && npm install && npm run build
+      # Build frontend (precisa instalar devDependencies para o vite)
+      cd frontend && npm ci && npm run build
       # Install backend dependencies
-      cd ../backend && npm install
+      cd ../backend && npm ci
       # Seed demo data
       npm run seed
     startCommand: |
