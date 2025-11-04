@@ -146,18 +146,12 @@ npm run dev
 - **Telegram**: API gratuita e ilimitada para notificações
 - **Zod**: Validação type-safe com inferência automática
 
-Veja detalhes em [ARCHITECTURE.md](ARCHITECTURE.md)
-
 ---
 
 ## 📚 Documentação
 
-| Documento | Descrição |
-|-----------|-----------|
-| [START_HERE.md](START_HERE.md) | Guia completo de instalação e configuração |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Decisões técnicas e arquitetura |
-| [FEATURES.md](docs/FEATURES.md) | Guia detalhado de todas as features |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Como contribuir com o projeto |
+- **[START_HERE.md](START_HERE.md)** - Guia completo de instalação, configuração e uso
+- **[API Collection](docs/api_collection.json)** - Postman/Insomnia endpoints
 
 ---
 
@@ -258,8 +252,6 @@ Coleção completa: [docs/api_collection.json](docs/api_collection.json)
 ```
 
 **Fluxo Completo**: Webhook → Validação → DB → Fulfillment → Logs → Dashboard → Telegram
-
-Detalhes completos em [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
@@ -517,22 +509,6 @@ setInterval(() => {
 
 ---
 
-## 📖 Documentação
-
-### Para Usuários
-
-- **[START_HERE.md](START_HERE.md)** - Setup completo passo a passo
-- **[docs/FEATURES.md](docs/FEATURES.md)** - Guia de todas as features
-- **[docs/QUICK_FEATURES.md](docs/QUICK_FEATURES.md)** - Features rápidas
-
-### Para Desenvolvedores
-
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Decisões técnicas detalhadas
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Como contribuir
-- **API Collection** - Postman/Insomnia em [docs/api_collection.json](docs/api_collection.json)
-
----
-
 ## 🗄️ Estrutura do Projeto
 
 ```
@@ -548,31 +524,23 @@ shopify-automation-dashboard/
 │   │   ├── telegram.js     # Bot integration
 │   │   └── monitoring.js   # Auto alerts
 │   ├── scripts/
-│   │   └── seed-orders.js  # Demo data (60-120 pedidos)
+│   │   └── seed-orders.js  # Demo data
 │   ├── test/
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/
 │   │   │   └── Admin.tsx   # Dashboard principal
-│   │   ├── components/
-│   │   │   ├── MetricCards.tsx
-│   │   │   ├── TimeseriesChart.tsx
-│   │   │   ├── Heatmap.tsx
-│   │   │   ├── OrderDrawer.tsx
-│   │   │   └── SavedFilters.tsx
+│   │   ├── components/     # 6 componentes React
 │   │   └── lib/
 │   │       └── api.ts      # HTTP client
 │   └── Dockerfile
 ├── docs/
-│   ├── FEATURES.md
-│   ├── QUICK_FEATURES.md
 │   └── api_collection.json
 ├── docker-compose.yml
-├── ARCHITECTURE.md
-├── CONTRIBUTING.md
 ├── LICENSE
-└── README.md
+├── README.md
+└── START_HERE.md
 ```
 
 ---
@@ -711,9 +679,7 @@ webhook_id, received_at
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md) para guidelines.
-
-### Como Contribuir
+Contribuições são bem-vindas!
 
 1. Fork o projeto
 2. Crie uma branch (`git checkout -b feature/AmazingFeature`)
