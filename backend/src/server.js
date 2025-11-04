@@ -52,6 +52,16 @@ async function startServer() {
   const dbPath = path.resolve(__dirname, '..', env.DATABASE_URL);
   await initDb(dbPath);
 
+  // Auto-seed em produção se banco vazio
+  if (env.NODE_ENV === 'production') {
+    const totalOrders = countOrders({});
+    if (totalOrders === 0) {
+      console.log('[SEED] Database empty, running auto-seed...');
+      const { seedOrdersSync } = await import('../scripts/seed-orders-sync.js');
+      await seedOrdersSync();
+    }
+  }
+
   // Inicializa Telegram Bot (opcional)
   if (env.TELEGRAM_BOT_TOKEN) {
     initTelegramBot(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_ADMIN_CHAT_IDS, env.FULFILLMENT_URL);
