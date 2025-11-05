@@ -39,19 +39,33 @@
 
 ---
 
-## 🌐 Deploy
+## 🐳 Deploy
 
-### Demo Online (Render.com)
+### Docker (Recomendado)
 
-**Instruções completas de deploy**: [DEPLOY_RENDER.md](DEPLOY_RENDER.md)
+A forma mais rápida e confiável de rodar o projeto completo:
 
-Deploy gratuito no Render.com em ~15 minutos:
-- ✅ Frontend + Backend juntos
-- ✅ Auto-deploy (push → deploy automático)
-- ✅ SSL/HTTPS grátis
-- ✅ Dados de demonstração pré-populados
+```bash
+git clone https://github.com/ampliaro/shopify-automation-dashboard.git
+cd shopify-automation-dashboard
 
-⏳ *Free tier hiberna após 15min - primeira request leva ~30s*
+# Configure tokens
+cp backend/env.example backend/.env
+cp frontend/env.example frontend/.env
+# Edite os .env com seus tokens
+
+# Inicie com Docker
+docker-compose up --build
+```
+
+**Acesse**: http://localhost:5173
+
+**Vantagens:**
+- ✅ Funciona em 2 minutos
+- ✅ Zero configuração
+- ✅ Ambiente isolado
+- ✅ Funciona em qualquer OS
+- ✅ Perfeito para desenvolvimento e demonstração
 
 ---
 
@@ -105,28 +119,27 @@ Deploy gratuito no Render.com em ~15 minutos:
 
 ---
 
-## 🎬 Demo Rápida
+## 🎬 Como Rodar
 
-### Opção 1: Docker (Recomendado)
+### Via Docker (Recomendado - 2 minutos)
 
 ```bash
-# Clone o repositório
 git clone https://github.com/ampliaro/shopify-automation-dashboard.git
 cd shopify-automation-dashboard
 
-# Configure variáveis de ambiente
+# Configure variáveis
 cp backend/env.example backend/.env
 cp frontend/env.example frontend/.env
+# Edite com seus tokens (ou use os defaults para demo)
 
-# Edite os .env files com seus tokens
-
-# Inicie com Docker
+# Inicie tudo
 docker-compose up --build
-
-# Acesse: http://localhost:5173
 ```
 
-### Opção 2: npm
+**Acesse**: http://localhost:5173  
+**Dados de demo**: Execute `docker-compose exec api npm run seed`
+
+### Via npm (Desenvolvimento)
 
 ```bash
 # Backend
@@ -141,7 +154,17 @@ npm install
 npm run dev
 ```
 
-**Pronto!** Dashboard rodando em **http://localhost:5173**
+**Pronto!** Dashboard em **http://localhost:5173**
+
+### Dados de Demonstração
+
+```bash
+# Popule com 60-120 pedidos realistas
+cd backend
+npm run seed
+```
+
+Isso cria pedidos distribuídos nos últimos 30 dias com mix de status, clientes e produtos fictícios.
 
 ---
 

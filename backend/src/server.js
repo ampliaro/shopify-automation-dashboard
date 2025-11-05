@@ -52,24 +52,6 @@ async function startServer() {
   const dbPath = path.resolve(__dirname, '..', env.DATABASE_URL);
   await initDb(dbPath);
 
-  // Auto-seed em produção se banco vazio
-  if (env.NODE_ENV === 'production') {
-    const totalOrders = countOrders({});
-    console.log(`[SEED] Checking database... ${totalOrders} orders found`);
-    if (totalOrders === 0) {
-      console.log('[SEED] Database empty, running auto-seed...');
-      try {
-        const { seedOrdersSync } = await import('../scripts/seed-orders-sync.js');
-        await seedOrdersSync();
-        console.log('[SEED] ✅ Auto-seed completed successfully');
-      } catch (error) {
-        console.error('[SEED] ❌ Auto-seed failed:', error.message);
-      }
-    } else {
-      console.log('[SEED] ✅ Database already populated, skipping seed');
-    }
-  }
-
   // Inicializa Telegram Bot (opcional)
   if (env.TELEGRAM_BOT_TOKEN) {
     initTelegramBot(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_ADMIN_CHAT_IDS, env.FULFILLMENT_URL);
@@ -95,13 +77,6 @@ async function startServer() {
     });
     next();
   });
-
-  // Serve arquivos estáticos do frontend em produção
-  if (env.NODE_ENV === 'production') {
-    const frontendPath = path.resolve(__dirname, '../../frontend/dist');
-    app.use(express.static(frontendPath));
-    console.log(`[SERVER] Serving frontend from: ${frontendPath}`);
-  }
 
   // JSON parser para rotas normais
   app.use(express.json());
@@ -499,25 +474,17 @@ async function startServer() {
     });
   });
 
-  // SPA fallback - serve index.html para rotas não-API em produção
-  if (env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
-      const frontendPath = path.resolve(__dirname, '../../frontend/dist');
-      res.sendFile(path.join(frontendPath, 'index.html'));
-    });
-  } else {
-    // 404 handler para desenvolvimento
-    app.use((req, res) => {
-      res.status(404).json({ error: 'Route not found' });
-    });
-  }
+  // 404 handler
+  app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+  });
 
   // ============================================================================
   // SERVER START
   // ============================================================================
 
-  const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[SERVER] Running on http://0.0.0.0:${PORT}`);
+  const server = app.listen(PORT, () => {
+    console.log(`[SERVER] Running on http://localhost:${PORT}`);
     console.log(`[SERVER] Environment: ${env.NODE_ENV}`);
     console.log(`[SERVER] Database: ${dbPath}`);
   });

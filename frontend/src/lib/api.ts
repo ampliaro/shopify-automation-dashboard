@@ -1,8 +1,5 @@
-// Em produção, API está no mesmo domínio
-const API_BASE = import.meta.env.VITE_API_BASE || (
-  import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001'
-);
-const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || 'demo_token_portfolio_2025';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
+const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || '';
 
 export interface Order {
   id: string;
