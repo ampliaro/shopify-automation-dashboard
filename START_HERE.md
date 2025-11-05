@@ -1,14 +1,14 @@
 # START HERE - Guia Completo
 
-Guia detalhado para configurar e usar o Dashboard Comercial do Shopify Automation.
+Guia detalhado para configurar e usar o Shopify Automation Dashboard.
 
 ## Índice
 
 1. [Pré-requisitos](#pré-requisitos)
-2. [Instalação Rápida](#instalação-rápida)
+2. [Instalação](#instalação)
 3. [Integração Shopify](#integração-shopify)
-4. [Usando o Dashboard](#usando-o-dashboard)
-5. [Dados de Demonstração](#dados-de-demonstração)
+4. [Dados de Demonstração](#dados-de-demonstração)
+5. [Usando o Dashboard](#usando-o-dashboard)
 6. [Testes](#testes)
 7. [Troubleshooting](#troubleshooting)
 
@@ -17,22 +17,22 @@ Guia detalhado para configurar e usar o Dashboard Comercial do Shopify Automatio
 ## Pré-requisitos
 
 - **Node.js** 18+ ([download](https://nodejs.org/))
-- **npm** 
-- **Docker** (opcional, para deploy com containers)
+- **npm** (incluído com Node.js)
 - **Git**
+- **Docker** (opcional, para execução via containers)
 
-> **Nota**: Este projeto usa `sql.js` (SQLite em WASM), então **não é necessário** Visual Studio Build Tools no Windows.
+> **Nota**: Este projeto usa `sql.js` (SQLite em WASM), portanto não requer compiladores nativos ou Visual Studio Build Tools.
 
 ---
 
-## Instalação Rápida
+## Instalação
 
 ### 1. Clone e Configure
 
 ```bash
 # Clone o repositório
-git clone <repository-url>
-cd shopify-automation
+git clone https://github.com/ampliaro/shopify-automation-dashboard.git
+cd shopify-automation-dashboard
 
 # Configure variáveis de ambiente
 cp backend/env.example backend/.env
@@ -44,16 +44,26 @@ cp frontend/env.example frontend/.env
 Edite `backend/.env`:
 
 ```env
-SHOPIFY_SHARED_SECRET=your_shopify_secret_here
+# Shopify Integration
+SHOPIFY_SHARED_SECRET=seu_shopify_secret_aqui
+
+# Fulfillment API
 FULFILLMENT_URL=http://localhost:3001/mock/fulfillment
+
+# Servidor
 PORT=3001
 DATABASE_URL=./data/app.db
 NODE_ENV=development
-ENABLE_MOCK=true
+
+# Segurança - CRÍTICO: Use valor seguro em produção
 ADMIN_TOKEN=dev_admin_token_123
+
+# Telegram (opcional)
+TELEGRAM_BOT_TOKEN=seu_bot_token
+TELEGRAM_ADMIN_CHAT_IDS=123456789
 ```
 
-⚠️ **Importante**: Altere `ADMIN_TOKEN` para um valor seguro em produção!
+**IMPORTANTE**: Altere `ADMIN_TOKEN` para um valor seguro e aleatório em produção.
 
 ### 3. Configure o Frontend (.env)
 
@@ -63,6 +73,8 @@ Edite `frontend/.env`:
 VITE_API_BASE=http://localhost:3001
 VITE_ADMIN_TOKEN=dev_admin_token_123
 ```
+
+**CRÍTICO**: `VITE_ADMIN_TOKEN` deve ser **idêntico** ao `ADMIN_TOKEN` do backend.
 
 ### 4. Instale Dependências
 
@@ -79,23 +91,16 @@ npm install
 ### 5. Inicie os Servidores
 
 ```bash
-# Backend (na pasta backend/)
+# Backend (porta 3001)
+cd backend
 npm run dev
 
-# Frontend (novo terminal, na pasta frontend/)
+# Frontend (porta 5173) - novo terminal
+cd frontend
 npm run dev
 ```
 
-### 6. Popule com Dados de Demonstração
-
-```bash
-# Na pasta backend/
-npm run seed
-```
-
-Isso criará 60-120 pedidos realistas distribuídos nos últimos 30 dias.
-
-### 7. Acesse o Dashboard
+### 6. Acesse o Dashboard
 
 Abra no navegador: **http://localhost:5173**
 
@@ -103,29 +108,28 @@ Abra no navegador: **http://localhost:5173**
 
 ## Integração Shopify
 
-### Passo 1: Criar Custom App no Shopify
+### Passo 1: Criar Custom App
 
-1. Acesse o admin do seu Shopify: `https://SEU_LOJA.myshopify.com/admin`
-2. Vá em **Settings** → **Apps and sales channels**
-3. Clique em **Develop apps**
-4. Clique em **Create an app**
-5. Dê um nome: `Order Automation`
-6. Clique em **Create app**
+1. Acesse o admin Shopify: `https://sua-loja.myshopify.com/admin`
+2. Navegue para **Settings → Apps and sales channels → Develop apps**
+3. Clique em **Create an app**
+4. Dê um nome: `Order Automation` (ou similar)
+5. Clique em **Create app**
 
 ### Passo 2: Configurar Permissões
 
 1. Vá na aba **Configuration**
 2. Em **Admin API integration**, clique em **Configure**
-3. Ative as seguintes permissões:
+3. Ative as permissões:
    - `read_orders`
    - `write_orders`
 4. Clique em **Save**
 
-### Passo 3: Obter API Credentials
+### Passo 3: Obter Shared Secret
 
 1. Vá na aba **API credentials**
-2. Anote o **API secret key** - este é o seu `SHOPIFY_SHARED_SECRET`
-3. Copie e cole no seu `backend/.env`:
+2. Copie o **API secret key** (este é o `SHOPIFY_SHARED_SECRET`)
+3. Cole no `backend/.env`:
 
 ```env
 SHOPIFY_SHARED_SECRET=shpss_1234567890abcdef...
@@ -133,47 +137,80 @@ SHOPIFY_SHARED_SECRET=shpss_1234567890abcdef...
 
 ### Passo 4: Configurar Webhook
 
-1. Ainda na aba **API credentials**, role até **Webhooks**
-2. Clique em **Add webhook**
-3. Configure:
+1. Ainda em **API credentials**, role até **Webhooks**
+2. Clique em **Add webhook** e configure:
    - **Event**: `Orders creation`
    - **Format**: `JSON`
    - **URL**: Sua URL pública + `/webhook/shopify`
-     - Em desenvolvimento, use **ngrok** (ver abaixo)
+     - Em desenvolvimento: use ngrok (veja abaixo)
      - Em produção: `https://seu-dominio.com/webhook/shopify`
    - **API version**: Latest
-4. Clique em **Save**
+3. Clique em **Save**
 
-### Passo 5: Expor Localhost com ngrok (Desenvolvimento)
+### Passo 5: Expor Localhost (Desenvolvimento)
+
+Em desenvolvimento, use ngrok para expor o backend:
 
 ```bash
-# Instale ngrok (se não tiver)
-# https://ngrok.com/download
+# Instale ngrok: https://ngrok.com/download
 
-# Exponha o backend
+# Exponha o backend (porta 3001)
 ngrok http 3001
 
-# Copie a URL gerada (ex: https://abc123.ngrok.io)
-# Use como URL do webhook: https://abc123.ngrok.io/webhook/shopify
+# Copie a URL gerada (ex: https://abc123.ngrok-free.app)
+# Use no webhook: https://abc123.ngrok-free.app/webhook/shopify
 ```
 
 ### Passo 6: Testar Webhook
 
-1. No Shopify Admin, crie um pedido de teste
-2. Verifique os logs do backend - você deve ver:
+1. No Shopify Admin, crie um pedido de teste **OU**
+2. Use **Send test notification** na configuração do webhook
+3. Verifique os logs do backend - deve aparecer:
    ```
    [WEBHOOK] Received order 1234567890
    [ORDER] Created order 1234567890 with status 'received'
    ```
-3. Acesse o dashboard e veja o pedido aparecer
+4. Acesse o dashboard e veja o pedido listado
 
 ### Validação de Segurança
 
 O sistema automaticamente:
 
-- ✅ Valida HMAC usando o `SHOPIFY_SHARED_SECRET`
-- ✅ Verifica idempotência via `X-Shopify-Webhook-Id`
-- ✅ Rejeita webhooks inválidos com erro 401
+- Valida HMAC usando `SHOPIFY_SHARED_SECRET`
+- Verifica idempotência via `X-Shopify-Webhook-Id`
+- Rejeita webhooks inválidos com erro 401
+
+---
+
+## Dados de Demonstração
+
+### Gerar Seed
+
+Para popular o banco com dados fictícios:
+
+```bash
+cd backend
+npm run seed
+```
+
+**O que o seed faz:**
+
+- Cria 60-120 pedidos realistas
+- Distribui ao longo de 30 dias (distribuição natural: mais recente = mais pedidos)
+- Mix de status: ~75% enviados, ~15% falhados, ~10% recebidos
+- Clientes e produtos brasileiros variados
+- Endereços completos e realistas
+- Tentativas e erros coerentes com o status
+- Timestamps realistas (envio 30s-10min após criação)
+- Logs de eventos para cada pedido
+
+### Limpar e Reiniciar
+
+```bash
+# Para resetar o banco completamente:
+rm backend/data/app.db
+npm run seed
+```
 
 ---
 
@@ -181,33 +218,35 @@ O sistema automaticamente:
 
 ### Visão Geral
 
-O dashboard está em **http://localhost:5173** e oferece:
+Dashboard disponível em **http://localhost:5173**
 
-- 📊 **Métricas em tempo real** com comparativos
-- 📈 **Gráficos de tendência** por dia/hora
-- 🔥 **Heatmap** de distribuição horária
-- 🔍 **Busca e filtros** avançados
-- ✅ **Ações em lote** para retry
-- 📝 **Detalhes completos** de cada pedido
+Funcionalidades:
 
-### 1. Seletor de Período
+- **Métricas em tempo real**: Cards com totais, taxas e deltas vs período anterior
+- **Gráficos de tendência**: Série temporal por dia/hora
+- **Heatmap**: Distribuição horária (modo "Hoje")
+- **Busca e filtros**: Por ID, email, status, período
+- **Ações em lote**: Retry múltiplo
+- **Detalhes completos**: Drawer com informações do pedido
 
-No topo, escolha o período de análise:
+### Seletor de Período
 
-- **Hoje**: Pedidos do dia atual + heatmap por hora
+No topo, escolha:
+
+- **Hoje**: Pedidos do dia + heatmap por hora
 - **7 dias**: Última semana
 - **30 dias**: Último mês
 
-### 2. Cards de Métricas
+### Cards de Métricas
 
-Exibe 4 métricas principais:
+Exibe 4 métricas principais com comparativos:
 
-- **Pedidos**: Total no período com delta vs período anterior
-- **Taxa de Sucesso**: % de pedidos enviados com sucesso
-- **Falhas**: Total de pedidos falhados (alerta se > 20%)
-- **Tempo Médio**: Tempo médio até envio ao fulfillment
+- **Pedidos**: Total no período
+- **Taxa de Sucesso**: % de pedidos enviados
+- **Falhas**: Total de pedidos falhados
+- **Tempo Médio**: Tempo até envio ao fulfillment
 
-### 3. Gráfico de Tendência
+### Gráfico de Tendência
 
 Série temporal mostrando:
 
@@ -216,96 +255,59 @@ Série temporal mostrando:
 - Falhados (vermelho)
 - Recebidos (azul)
 
-### 4. Heatmap (apenas "Hoje")
+Clique em qualquer ponto para filtrar a tabela por aquela data.
 
-Mostra distribuição de pedidos por hora (0-23h) com intensidade de cor.
+### Heatmap (apenas "Hoje")
 
-### 5. Busca e Filtros
+Mostra distribuição de pedidos por hora (0-23h).
 
-**Busca**: Digite ID do pedido ou email do cliente
+### Busca e Filtros
 
-**Filtro de Status**:
-- Todos
-- Recebido
-- Enviado
-- Falhou
+- **Busca**: Digite ID do pedido ou email do cliente
+- **Status**: Todos / Recebido / Enviado / Falhou
+- **Período**: Hoje / 7d / 30d
+- **Data específica**: Clique no gráfico
 
-### 6. Tabela de Pedidos
+### Tabela de Pedidos
 
 Colunas:
 
-- Checkbox (para seleção múltipla)
+- Checkbox (seleção múltipla)
 - ID do pedido
 - Data de criação
-- Status (badge colorido)
+- Status (badge)
 - Email do cliente
 - Tentativas
-- Nota (📝 se houver)
+- Nota (ícone se houver)
 
-**Clique em qualquer linha** para abrir detalhes completos.
+Clique em qualquer linha para abrir detalhes.
 
-### 7. Ações em Lote
+### Ações em Lote
 
-1. Selecione pedidos falhados (checkbox)
+1. Selecione pedidos (checkbox)
 2. Clique em **"Retry Selecionados"**
-3. Confirme a ação
+3. Confirme
 
-O sistema retentará todos os pedidos selecionados.
+### Drawer de Detalhes
 
-### 8. Detalhes do Pedido (Drawer)
+Ao clicar em um pedido:
 
-Ao clicar em um pedido, abre drawer lateral com:
+- Informações do cliente
+- Endereço de entrega
+- Itens do pedido
+- Detalhes de processamento
+- Campo de nota editável
+- Timeline de eventos
 
-- **Informações do cliente**: Nome, email
-- **Endereço de entrega**: Completo
-- **Itens**: Produtos, quantidades, SKUs, preços
-- **Detalhes**: Datas, tentativas, erros
-- **Nota**: Campo editável para observações
-- **Timeline**: Histórico completo de eventos
+**Ações:**
 
-**Ações disponíveis**:
 - **Retry**: Retenta envio (se falhado)
-- **Marcar como Enviado**: Muda status manualmente
-- **Salvar Nota**: Adiciona observação ao pedido
+- **Marcar como Enviado**: Altera status manualmente
+- **Salvar Nota**: Adiciona observação
 
-### 9. Exportar CSV
+### Exportar CSV
 
-Botão **"Exportar CSV"** no header:
-
-- Exporta pedidos do período e filtro atual
-- Inclui todas as colunas essenciais
-- Adiciona sumário de métricas ao final
-- Download automático do arquivo
-
----
-
-## Dados de Demonstração
-
-### Gerar Dados de Seed
-
-```bash
-cd backend
-npm run seed
-```
-
-**O que o seed faz**:
-
-- Cria 60-120 pedidos realistas
-- Distribui ao longo de 30 dias (mais recentes = mais pedidos)
-- Mix de status: ~75% enviados, ~15% falhados, ~10% recebidos
-- Clientes e produtos variados
-- Endereços brasileiros realistas
-- Tentativas e erros coerentes
-- Timestamps de envio realistas (30s-10min após criação)
-- Logs de eventos para cada pedido
-
-### Limpar e Reiniciar
-
-```bash
-# Para limpar o banco e recomeçar:
-rm backend/data/app.db
-npm run seed
-```
+Botão no header exporta pedidos do período/filtro atual com métricas agregadas.
 
 ---
 
@@ -319,10 +321,10 @@ curl http://localhost:3001/healthz
 
 Resposta esperada:
 ```json
-{"status":"ok","timestamp":"2025-11-04T..."}
+{"status":"ok","timestamp":"2025-11-05T..."}
 ```
 
-### 2. Testar Métricas (com Admin Token)
+### 2. Testar Métricas
 
 ```bash
 curl -H "x-admin-token: dev_admin_token_123" \
@@ -331,14 +333,33 @@ curl -H "x-admin-token: dev_admin_token_123" \
 
 ### 3. Testar Webhook com HMAC
 
-Use o script helper:
+Para gerar um webhook válido com HMAC correto:
 
 ```bash
 cd test
 node hmac-test.js sample-order.json
 ```
 
-Copie o comando cURL gerado e execute.
+Ou manualmente, usando cURL:
+
+```bash
+# 1. Calcule o HMAC do payload
+PAYLOAD='{"id":1234567890,"email":"test@example.com","created_at":"2025-11-05T10:00:00Z"}'
+SECRET="seu_shopify_secret"
+
+# 2. No Linux/Mac:
+HMAC=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
+
+# 3. No Windows (PowerShell):
+# Use o script test/hmac-test.js
+
+# 4. Envie o webhook:
+curl -X POST http://localhost:3001/webhook/shopify \
+  -H "Content-Type: application/json" \
+  -H "X-Shopify-Hmac-SHA256: $HMAC" \
+  -H "X-Shopify-Webhook-Id: test-webhook-123" \
+  -d "$PAYLOAD"
+```
 
 ### 4. Testes Automatizados
 
@@ -347,163 +368,188 @@ cd backend
 npm test
 ```
 
+Cobertura:
+- Validação HMAC
+- Idempotência
+- Processamento de pedidos
+- Atualização de status
+
 ---
 
 ## Troubleshooting
 
 ### Erro: "Admin token is required"
 
-- Verifique se `ADMIN_TOKEN` está configurado no `backend/.env`
-- Verifique se `VITE_ADMIN_TOKEN` está configurado no `frontend/.env`
-- Certifique-se de que os valores são idênticos
+**Causa**: Token não configurado ou diferente entre backend/frontend.
+
+**Solução**:
+1. Verifique `ADMIN_TOKEN` no `backend/.env`
+2. Verifique `VITE_ADMIN_TOKEN` no `frontend/.env`
+3. Certifique-se de que os valores são **idênticos**
+4. Reinicie ambos os servidores
 
 ### Erro: "Invalid HMAC signature"
 
-1. Verifique se `SHOPIFY_SHARED_SECRET` está correto
+**Causa**: Shared secret incorreto ou payload alterado.
+
+**Solução**:
+1. Confirme `SHOPIFY_SHARED_SECRET` no `backend/.env`
 2. Use `test/hmac-test.js` para gerar HMAC válido
-3. Certifique-se de que o body é exatamente o mesmo usado no cálculo
+3. Verifique que o body do webhook não foi modificado
 
 ### Webhook não aparece no dashboard
 
-1. Verifique logs do backend
-2. Confirme que HMAC está correto
-3. Verifique se banco de dados foi criado em `backend/data/app.db`
-4. Tente criar pedido manualmente via seed
+**Diagnóstico**:
+1. Verifique logs do backend para erros
+2. Confirme que HMAC é válido
+3. Verifique se `backend/data/app.db` existe
+4. Teste com seed: `npm run seed`
+
+**Solução**:
+```bash
+# Certifique-se da pasta data
+mkdir -p backend/data
+
+# Reinicie o backend
+cd backend
+npm run dev
+```
 
 ### Erro: "Database not initialized"
 
+**Solução**:
 ```bash
-# Certifique-se de que a pasta data existe
 mkdir -p backend/data
+# O banco será criado automaticamente na primeira execução
 ```
 
 ### Porta já em uso (EADDRINUSE)
 
-Mude a `PORT` no `backend/.env` ou encerre o processo:
-
-```bash
-# Windows
+**Windows**:
+```powershell
 netstat -ano | findstr :3001
 taskkill /PID <PID> /F
+```
 
-# Linux/Mac
+**Linux/Mac**:
+```bash
 lsof -ti:3001 | xargs kill -9
 ```
 
+**Alternativa**: Mude `PORT` no `backend/.env`
+
+### Frontend não conecta ao backend
+
+**Sintomas**: Métricas não carregam, erro de CORS.
+
+**Solução**:
+1. Confirme que backend está rodando em `http://localhost:3001`
+2. Verifique `VITE_API_BASE` no `frontend/.env`
+3. Verifique console do navegador para erros
+4. Teste endpoint direto: `curl http://localhost:3001/healthz`
+
 ### Gráficos não aparecem
 
-1. Verifique se `recharts` está instalado:
-   ```bash
-   cd frontend
-   npm install recharts
-   ```
-2. Limpe cache e reinstale:
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
+**Solução**:
+```bash
+cd frontend
+npm install recharts
+npm run dev
+```
+
+Se persistir:
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
 
 ### ngrok expira (desenvolvimento)
 
-ngrok free tem limite de tempo. Quando expirar:
+ngrok free tem sessões temporárias.
 
+**Solução**:
 1. Reinicie: `ngrok http 3001`
 2. Copie nova URL
-3. Atualize URL do webhook no Shopify
+3. Atualize webhook no Shopify Admin
+
+### Métricas mostram "0" mesmo com seed
+
+**Causa**: Dados podem estar fora do período selecionado.
+
+**Solução**:
+1. Selecione período "30 dias"
+2. Verifique se seed rodou com sucesso
+3. Confirme dados no banco:
+   ```bash
+   # Conte pedidos
+   cd backend
+   node -e "import('./src/db.js').then(db => console.log(db.getOrders({}).length))"
+   ```
 
 ---
 
 ## Bot do Telegram (Opcional)
 
-### Configurar Bot
+### Configurar
 
-O sistema inclui integração completa com Telegram para monitorar e gerenciar pedidos remotamente.
-
-#### 1. Já tenho o Bot criado
-
-Se você já criou o bot no @BotFather, siga:
-
-```bash
-# 1. Adicione o token no backend/.env
-TELEGRAM_BOT_TOKEN=seu_token_do_botfather_aqui
-
-# 2. Obtenha seu Chat ID
-cd backend
-npm run telegram:setup
-
-# 3. Envie uma mensagem para o bot no Telegram
-# O script mostrará seu Chat ID
-
-# 4. Adicione o Chat ID no .env
-TELEGRAM_ADMIN_CHAT_IDS=seu_chat_id_aqui
-
-# 5. Reinicie o backend
-npm run dev
-```
-
-#### 2. Criar um novo Bot
-
-Se ainda não tem bot:
-
-1. Abra o Telegram e busque por **@BotFather**
-2. Digite `/newbot`
-3. Escolha um nome (ex: OrderFlow Bot)
-4. Escolha um username (ex: OrderFlowBot ou SuaMarcaBot)
-5. Copie o token recebido
-6. Siga os passos acima
+1. Crie bot no **@BotFather** (Telegram)
+2. Copie o token recebido
+3. Adicione ao `backend/.env`:
+   ```env
+   TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+   ```
+4. Obtenha seu Chat ID:
+   ```bash
+   cd backend
+   npm run telegram:setup
+   # Envie mensagem para o bot
+   # Script mostrará seu Chat ID
+   ```
+5. Adicione ao `.env`:
+   ```env
+   TELEGRAM_ADMIN_CHAT_IDS=123456789
+   ```
+6. Reinicie backend
 
 ### Comandos Disponíveis
 
-Uma vez configurado, você pode usar:
-
-**📊 Métricas:**
+**Métricas:**
 - `/hoje` - Estatísticas de hoje
 - `/7dias` - Últimos 7 dias
 - `/30dias` - Últimos 30 dias
+- `/relatorio` - Relatório completo
 
-**📦 Pedidos:**
+**Pedidos:**
 - `/falhas` - Lista pedidos falhados
 - `/recentes` - Últimos 10 pedidos
-- `/pedido [ID]` - Detalhes completos
+- `/pedido [ID]` - Detalhes de um pedido
 - `/logs [ID]` - Timeline de eventos
-
-**⚡ Ações:**
-- `/retry [ID]` - Retenta enviar pedido
 - `/buscar [email]` - Busca por cliente
 
-**ℹ️ Outros:**
+**Ações:**
+- `/retry [ID]` - Retenta enviar pedido
 - `/status` - Status do sistema
 - `/ajuda` - Lista de comandos
-
-### Notificações Automáticas
-
-O bot pode enviar alertas automáticos quando:
-- Taxa de falha ultrapassa 20%
-- Pedido falha mais de 3 vezes
-- Sistema volta ao normal
-
-(Feature disponível para implementação futura)
 
 ---
 
 ## Próximos Passos
 
-1. **Deploy em Produção**:
-   - Configure variáveis de ambiente seguras
-   - Use domínio real para webhook
+1. **Produção**:
+   - Use `ADMIN_TOKEN` seguro (ex: UUID v4)
    - Configure SSL/HTTPS
-   - Use banco de dados persistente
+   - Use domínio real para webhook
+   - Configure variáveis via secrets do host
 
-2. **Personalize**:
-   - Ajuste cores no `Admin.css`
-   - Adicione campos customizados
-   - Integre com sua API de fulfillment real
-   - Configure bot do Telegram
+2. **Personalização**:
+   - Ajuste cores em `frontend/src/pages/Admin.css`
+   - Integre API de fulfillment real
+   - Configure bot Telegram para alertas
 
-3. **Monitore**:
-   - Use bot do Telegram para alertas em tempo real
-   - Monitore performance das APIs
+3. **Monitoramento**:
+   - Use bot para receber alertas
    - Analise métricas regularmente
+   - Configure logs centralizados (opcional)
 
 ---
 
@@ -511,7 +557,7 @@ O bot pode enviar alertas automáticos quando:
 
 Para problemas ou dúvidas:
 
-- Verifique logs do backend e frontend
-- Consulte documentação do Shopify: https://shopify.dev/docs/apps/webhooks
-- Documentação do Telegram Bot: https://core.telegram.org/bots
+- Verifique logs do backend e console do navegador
+- Consulte [documentação Shopify](https://shopify.dev/docs/apps/webhooks)
+- Consulte [documentação Telegram Bot](https://core.telegram.org/bots)
 - Abra uma issue no repositório
