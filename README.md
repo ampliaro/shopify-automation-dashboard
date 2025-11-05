@@ -1,559 +1,147 @@
-<div align="center">
+# Shopify Automation Dashboard
 
-# 🚀 Shopify Automation Dashboard
+Dashboard comercial para pedidos Shopify com métricas (Hoje/7d/30d), comparativos, heatmap opcional, retries (individual e em lote) e logs. Backend Node/Express com validação HMAC e idempotência; frontend React + Vite. Docker e seed inclusos.
 
-### Dashboard Comercial Completo para Automação e Monitoramento de Pedidos Shopify
+## Recursos Principais
 
-<p align="center">
-  <strong>Analytics em Tempo Real</strong> • 
-  <strong>Gestão Inteligente de Falhas</strong> • 
-  <strong>Notificações Automáticas</strong> • 
-  <strong>Bot do Telegram</strong>
-</p>
+- Webhook `orders/create` com validação HMAC e idempotência
+- Painel `/admin` com cards de métricas, gráficos de tendência e filtros avançados
+- Sistema de retry individual e em lote para pedidos falhados
+- Logs completos de eventos e timeline
+- Exportação CSV com métricas agregadas
+- Seed de dados de teste para desenvolvimento
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4?logo=telegram&logoColor=white)](https://core.telegram.org/bots)
-
-<p align="center">
-  <strong>🌐 <a href="#-deploy">Demo Online Disponível</a></strong>
-</p>
-
-<p align="center">
-  <i>Desenvolvido por <a href="https://github.com/ampliaro">Ampliaro Studio</a></i>
-</p>
-
----
-
-[Features](#-features) •
-[Demo Local](#-demo-rápida) •
-[Deploy](#-deploy) •
-[Instalação](#-instalação) •
-[Documentação](#-documentação) •
-[Telegram Bot](#-comandos-do-telegram) •
-[Contribuir](#-contribuindo)
-
-</div>
-
----
-
-## 🐳 Deploy
-
-### Docker (Recomendado)
-
-A forma mais rápida e confiável de rodar o projeto completo:
-
-```bash
-git clone https://github.com/ampliaro/shopify-automation-dashboard.git
-cd shopify-automation-dashboard
-
-# Configure tokens
-cp backend/env.example backend/.env
-cp frontend/env.example frontend/.env
-# Edite os .env com seus tokens
-
-# Inicie com Docker
-docker-compose up --build
-```
-
-**Acesse**: http://localhost:5173
-
-**Vantagens:**
-- ✅ Funciona em 2 minutos
-- ✅ Zero configuração
-- ✅ Ambiente isolado
-- ✅ Funciona em qualquer OS
-- ✅ Perfeito para desenvolvimento e demonstração
-
----
-
-## 📸 Preview
-
-![shopify_gif1](https://github.com/user-attachments/assets/bd22c24e-b975-412c-bd59-c82647ee10a5)
-
-*clientes fictícios*
-
-## ✨ Features
-
-### 📊 **Analytics Completo**
-
-- **Métricas em Tempo Real** com comparativos vs período anterior
-- **Gráficos Interativos** (Recharts) - clique para drill-down
-- **Heatmap** de distribuição horária
-- **Exportação CSV** com métricas agregadas
-- **Seletor de Período**: Hoje | 7 dias | 30 dias
-
-### 🎯 **Gestão de Pedidos**
-
-- **Busca Avançada** por ID ou email do cliente
-- **Filtros Inteligentes** por status e período
-- **Retry Individual** ou **em Lote** para pedidos falhados
-- **Detalhes Completos** em drawer lateral
-- **Timeline de Eventos** com histórico completo
-- **Notas** editáveis para cada pedido
-
-### 🤖 **Bot do Telegram**
-
-- **16 Comandos Disponíveis** para gestão remota
-- **Alertas Automáticos** quando taxa de falha > 20%
-- **Monitoramento Proativo** a cada 15 minutos
-- **Relatórios Sob Demanda** via `/relatorio`
-- **Ações Remotas**: retry, busca, detalhes
-
-### 🎨 **UX Moderna**
-
-- **Dark Mode** com transições suaves
-- **Filtros Salvos** para acesso rápido
-- **Drill-down Interativo** - clique no gráfico → filtra tabela
-- **Responsivo** - funciona em desktop, tablet e mobile
-- **Tooltips Informativos** em todas as métricas
-
-### 🔒 **Segurança**
-
-- **Validação HMAC** de webhooks Shopify
-- **Idempotência** via X-Shopify-Webhook-Id
-- **Admin Token** para rotas protegidas
-- **CORS** configurado
-
----
-
-## 🎬 Como Rodar
-
-### Via Docker (Recomendado - 2 minutos)
-
-```bash
-git clone https://github.com/ampliaro/shopify-automation-dashboard.git
-cd shopify-automation-dashboard
-
-# Configure variáveis
-cp backend/env.example backend/.env
-cp frontend/env.example frontend/.env
-# Edite com seus tokens (ou use os defaults para demo)
-
-# Inicie tudo
-docker-compose up --build
-```
-
-**Acesse**: http://localhost:5173  
-**Dados de demo**: Execute `docker-compose exec api npm run seed`
-
-### Via npm (Desenvolvimento)
-
-```bash
-# Backend
-cd backend
-npm install
-npm run seed  # Popula com dados de demo
-npm run dev
-
-# Frontend (novo terminal)
-cd frontend
-npm install
-npm run dev
-```
-
-**Pronto!** Dashboard em **http://localhost:5173**
-
-### Dados de Demonstração
-
-```bash
-# Popule com 60-120 pedidos realistas
-cd backend
-npm run seed
-```
-
-Isso cria pedidos distribuídos nos últimos 30 dias com mix de status, clientes e produtos fictícios.
-
----
-
-## 🛠️ Tech Stack
-
-<div align="center">
-
-| Camada | Tecnologias |
-|--------|-------------|
-| **Backend** | Node.js, Express, SQLite (sql.js), Zod |
-| **Frontend** | React 18, TypeScript, Vite, Recharts |
-| **Notificações** | Telegram Bot API |
-| **DevOps** | Docker, Docker Compose |
-| **Testes** | Node Test Runner, Supertest |
-
-</div>
-
-### Por que essas tecnologias?
-
-- **sql.js**: SQLite em WASM - zero dependências nativas, funciona em qualquer ambiente
-- **Vite**: Build ultrarrápido com HMR instantâneo
-- **Recharts**: Gráficos React-first, declarativos e responsivos
-- **Telegram**: API gratuita e ilimitada para notificações
-- **Zod**: Validação type-safe com inferência automática
-
----
-
-## 📚 Documentação
-
-- **[START_HERE.md](START_HERE.md)** - Guia completo de instalação, configuração e uso
-- **[API Collection](docs/api_collection.json)** - Postman/Insomnia endpoints
-
----
-
-## 🔌 API Endpoints
-
-### Públicos
-
-```http
-POST   /webhook/shopify          # Recebe webhooks (validação HMAC)
-GET    /healthz                  # Health check
-```
-
-### Administrativos (requerem `x-admin-token`)
-
-**Métricas:**
-```http
-GET    /metrics/summary?range={today|7d|30d}
-GET    /metrics/timeseries?range={today|7d|30d}
-GET    /metrics/heatmap
-```
-
-**Pedidos:**
-```http
-GET    /orders?status=&q=&range=&specificDate=&limit=&offset=
-GET    /orders/:id
-GET    /orders/:id/logs
-POST   /orders/:id/retry
-POST   /orders/bulk/retry
-PATCH  /orders/:id
-```
-
-**Relatórios:**
-```http
-GET    /reports/export.csv?range={today|7d|30d}&status=
-```
-
-Coleção completa: [docs/api_collection.json](docs/api_collection.json)
-
----
-
-## 🤖 Comandos do Telegram
-
-### Métricas
-```
-/hoje     - Estatísticas de hoje
-/7dias    - Últimos 7 dias
-/30dias   - Últimos 30 dias
-/relatorio - Relatório completo
-```
-
-### Pedidos
-```
-/falhas             - Lista pedidos falhados
-/recentes           - Últimos 10 pedidos
-/pedido [ID]        - Detalhes de um pedido
-/logs [ID]          - Timeline de eventos
-/buscar [email]     - Busca por cliente
-```
-
-### Ações
-```
-/retry [ID]  - Retenta enviar pedido
-/alertas     - Status do monitoramento
-/status      - Status do sistema
-```
-
----
-
-## 🏗️ Arquitetura
-
-```
-┌──────────────┐
-│   Shopify    │
-│   Webhooks   │ (HMAC validated)
-└──────┬───────┘
-       │
-       ↓
-┌─────────────────────────────────┐
-│      Backend (Express)          │
-│  ┌────────┐  ┌──────────────┐  │
-│  │ SQLite │←→│  Telegram    │  │
-│  │(sql.js)│  │     Bot      │  │
-│  └────────┘  └──────────────┘  │
-│  ┌──────────────────────────┐  │
-│  │   Monitoring Service     │  │
-│  │   (Auto Alerts 15min)    │  │
-│  └──────────────────────────┘  │
-└────────┬────────────────────────┘
-         │ REST API (Admin Token)
-         ↓
-┌─────────────────────────────────┐
-│   Frontend (React + TS)         │
-│  ┌─────────┐  ┌──────────────┐ │
-│  │Dashboard│  │  Components  │ │
-│  │Analytics│  │  (Recharts)  │ │
-│  └─────────┘  └──────────────┘ │
-└─────────────────────────────────┘
-```
-
-**Fluxo Completo**: Webhook → Validação → DB → Fulfillment → Logs → Dashboard → Telegram
-
----
-
-## 💡 Highlights Técnicos
-
-### 🎯 **Problema Resolvido**
-
-Vendedores Shopify precisam:
-- ✅ Monitorar pedidos em tempo real
-- ✅ Identificar falhas rapidamente
-- ✅ Retentar envios com 1 clique
-- ✅ Analisar tendências e padrões
-- ✅ Receber alertas proativos
-
-### 🏆 **Solução Implementada**
-
-Dashboard completo com:
-- Analytics visual com métricas acionáveis
-- Sistema de retry inteligente
-- Monitoramento automático 24/7
-- Bot Telegram para gestão remota
-- Drill-down interativo para investigação
-
-### ⚡ **Diferenciais**
-
-1. **Zero Dependências Nativas** - sql.js (WASM) funciona em qualquer ambiente
-2. **Validação HMAC Custom** - Segurança implementada do zero
-3. **Drill-down Interativo** - Clique no gráfico → filtra tabela automaticamente
-4. **Alertas Inteligentes** - Notificação automática de anomalias
-5. **Dark Mode Completo** - Tema otimizado para uso prolongado
-6. **Filtros Salvos** - Produtividade com 1 clique
-7. **100% Gratuito** - Todas as integrações são free tier
-
----
-
-## 📊 Métricas do Projeto
-
-- **Linhas de Código**: ~3.500+ (backend + frontend)
-- **Componentes React**: 6 componentes principais
-- **Endpoints API**: 15 endpoints
-- **Comandos Telegram**: 16 comandos
-- **Cobertura de Testes**: Backend core functions
-- **Performance**: < 500ms dashboard load
-
----
-
-## 🎓 Skills Demonstradas
-
-### Backend
-- [x] REST API design
-- [x] Webhook validation (HMAC)
-- [x] Database design e migrations
-- [x] Idempotency patterns
-- [x] Error handling robusto
-- [x] Logging estruturado
-- [x] External API integration
-- [x] Bot development
-
-### Frontend
-- [x] React Hooks avançados
-- [x] TypeScript strict mode
-- [x] Data visualization (charts)
-- [x] State management
-- [x] Responsive design
-- [x] Dark mode implementation
-- [x] LocalStorage persistence
-- [x] Performance optimization
-
-### DevOps
-- [x] Docker containerization
-- [x] Docker Compose orchestration
-- [x] Environment management
-- [x] Health checks
-- [x] Graceful shutdown
-
-### Arquitetura
-- [x] Separation of concerns
-- [x] Modular design
-- [x] Scalable structure
-- [x] Security best practices
-- [x] Documentation thoroughness
-
----
-
-## 🚀 Quickstart
+## Quickstart
 
 ### Pré-requisitos
 
 - Node.js 18+
 - npm
-- Docker (opcional)
 
-### Instalação Rápida
+### Instalação
 
 ```bash
-# 1. Clone
+# Clone o repositório
 git clone https://github.com/ampliaro/shopify-automation-dashboard.git
 cd shopify-automation-dashboard
 
-# 2. Configure variáveis
+# Configure variáveis de ambiente
 cp backend/env.example backend/.env
 cp frontend/env.example frontend/.env
+# Edite os arquivos .env com suas credenciais
 
-# Edite os .env com seus tokens
+# Instale dependências do backend
+cd backend
+npm install
 
-# 3. Instale dependências
-cd backend && npm install
-cd ../frontend && npm install
-
-# 4. Seed de dados de demonstração
-cd backend && npm run seed
-
-# 5. Inicie (2 terminais)
-# Terminal 1:
-cd backend && npm run dev
-
-# Terminal 2:
-cd frontend && npm run dev
-
-# 6. Acesse: http://localhost:5173
+# Instale dependências do frontend (novo terminal)
+cd frontend
+npm install
 ```
 
-**Com Docker:**
+### Executar
+
+```bash
+# Backend (porta 3001)
+cd backend
+npm run dev
+
+# Frontend (porta 5173) - novo terminal
+cd frontend
+npm run dev
+```
+
+Acesse: **http://localhost:5173**
+
+### Com Docker
+
 ```bash
 docker-compose up --build
 ```
 
----
+Acesse: **http://localhost:5173**
 
-## 📋 Funcionalidades Principais
+## Dashboard
 
-<table>
-<tr>
-<td width="50%">
+O painel administrativo oferece:
 
-### 📊 Dashboard Analytics
-- Cards de métricas com deltas
-- Gráfico de tendências (4 séries)
-- Heatmap de distribuição horária
-- Comparativos automáticos
-- Alertas visuais de anomalias
+- **Cards de métricas**: Pedidos totais, taxa de sucesso, falhas e tempo médio, com comparativos vs período anterior
+- **Gráfico de tendências**: Visualização temporal de pedidos por status (recebidos, enviados, falhados)
+- **Heatmap**: Distribuição de pedidos por hora do dia (modo "Hoje")
+- **Filtros avançados**: Por status, período, data específica e busca por ID ou email
+- **Retry**: Ação individual ou em lote para reprocessar pedidos falhados
+- **Drawer de detalhes**: Informações completas do pedido, cliente, itens, endereço e timeline de eventos
+- **Logs**: Histórico completo de tentativas e erros
+- **Notas**: Campo editável para observações
 
-### 🔍 Busca e Filtros
-- Busca por ID ou email
-- Filtro por status
-- Filtro por período
-- Filtros salvos (localStorage)
-- Drill-down do gráfico
+## Integração Shopify
 
-</td>
-<td width="50%">
+### Configurar Custom App
 
-### ⚡ Ações Rápidas
-- Retry individual
-- Bulk retry (seleção múltipla)
-- Marcar como enviado
-- Adicionar notas
-- Exportar CSV
+1. Acesse o admin Shopify: `https://sua-loja.myshopify.com/admin`
+2. Navegue para **Settings → Apps and sales channels → Develop apps**
+3. Clique em **Create an app** e dê um nome (ex: "Order Automation")
+4. Em **Configuration → Admin API integration**, ative as permissões:
+   - `read_orders`
+   - `write_orders`
+5. Salve as alterações
 
-### 🤖 Telegram Bot
-- 16 comandos disponíveis
-- Alertas automáticos (15min)
-- Métricas em tempo real
-- Ações remotas
-- Relatórios completos
+### Configurar Webhook
 
-</td>
-</tr>
-</table>
+1. Vá em **API credentials → Webhooks**
+2. Clique em **Add webhook** e configure:
+   - **Event**: `Orders creation`
+   - **Format**: `JSON`
+   - **URL**: `https://seu-dominio.com/webhook/shopify` (em dev, use ngrok)
+   - **API version**: Latest
+3. Copie o **API secret key** (Shared Secret)
+4. Adicione ao `backend/.env`:
+   ```env
+   SHOPIFY_SHARED_SECRET=shpss_seu_secret_aqui
+   ```
+5. Use **Send test notification** no Shopify para testar
+6. O pedido deve aparecer no dashboard em `/admin`
 
----
+## Seed / Dados de Teste
 
-## 🎯 Casos de Uso
+Para popular o banco com dados de demonstração:
 
-### 1. Monitoramento Proativo
-```
-Vendedor recebe alerta no Telegram:
-"🚨 Taxa de falha: 23% nos últimos 7 dias"
-
-Ações:
-→ Abre dashboard
-→ Clica no pico de falhas no gráfico
-→ Vê pedidos específicos daquele dia
-→ Faz retry em lote
+```bash
+cd backend
+npm run seed
 ```
 
-### 2. Investigação de Problemas
-```
-Cliente reclama: "Meu pedido não foi processado"
+Isso cria 60-120 pedidos fictícios distribuídos nos últimos 30 dias, com mix realista de status, clientes brasileiros e produtos variados.
 
-Vendedor:
-→ /buscar maria@gmail.com (no Telegram)
-→ Vê status e tentativas
-→ /retry 5108 (retenta direto pelo bot)
-→ ✅ Resolvido em 30 segundos
-```
+Para visualizar os dados, acesse o dashboard e explore as diferentes métricas e filtros disponíveis.
 
-### 3. Análise de Performance
-```
-Gestor quer entender padrões:
-→ Seleciona "30 dias"
-→ Vê gráfico de tendências
-→ Identifica: Segundas têm mais falhas
-→ Heatmap mostra: 14h-16h é horário pico
-→ Exporta CSV para análise detalhada
-```
+## Limitações do MVP
 
----
+- Fulfillment configurado via URL de API externa
+- Autenticação simples baseada em token (`ADMIN_TOKEN`)
+- Sem suporte multi-tenant (uma loja por instância)
+- CI básico sem deploy automatizado
+- Bot Telegram opcional (requer configuração adicional)
 
-## 🏆 Destaques Técnicos
+## Stack Técnica
 
-### Validação HMAC Customizada
+**Backend:**
+- Node.js + Express
+- SQLite (sql.js - WASM, zero dependências nativas)
+- Validação HMAC customizada para webhooks Shopify
+- Zod para validação de schemas
 
-```javascript
-// Implementação própria de validação Shopify
-const hmac = crypto.createHmac('sha256', secret);
-hmac.update(rawBody, 'utf8');
-const hash = hmac.digest('base64');
+**Frontend:**
+- React 18 + TypeScript
+- Vite (build e dev server)
+- Recharts para visualizações
+- CSS modular com dark mode
 
-if (hash !== shopifyHmac) {
-  return res.status(401).json({ error: 'Invalid HMAC' });
-}
-```
+**DevOps:**
+- Docker + Docker Compose
+- Health checks e graceful shutdown
 
-**Por quê**: Segurança crítica + demonstra conhecimento de crypto
-
-### Drill-down Interativo
-
-```typescript
-// Click no gráfico → filtra tabela automaticamente
-<LineChart onClick={(e) => handleDateClick(e.activeLabel)}>
-  // Extrai data do ponto clicado
-  // Filtra orders pela data específica
-  // Atualiza tabela em tempo real
-</LineChart>
-```
-
-**Por quê**: UX avançada + interatividade inteligente
-
-### Monitoramento Automático
-
-```javascript
-// Checa métricas a cada 15min
-setInterval(() => {
-  const metrics = getMetricsSummary('7d');
-  const failureRate = calculateRate(metrics);
-  
-  if (failureRate > 20% && !alerted) {
-    sendTelegramAlert(`🚨 Taxa de falha: ${failureRate}%`);
-  }
-}, 15 * 60 * 1000);
-```
-
-**Por quê**: Proatividade + automação real
-
----
-
-## 🗄️ Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 shopify-automation-dashboard/
@@ -568,37 +156,31 @@ shopify-automation-dashboard/
 │   │   ├── telegram.js     # Bot integration
 │   │   └── monitoring.js   # Auto alerts
 │   ├── scripts/
-│   │   └── seed-orders.js  # Demo data
+│   │   └── seed-orders.js  # Dados de demo
 │   ├── test/
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/
-│   │   │   └── Admin.tsx   # Dashboard principal
+│   │   ├── pages/Admin.tsx
 │   │   ├── components/     # 6 componentes React
-│   │   └── lib/
-│   │       └── api.ts      # HTTP client
+│   │   └── lib/api.ts
 │   └── Dockerfile
-├── docs/
-│   └── api_collection.json
 ├── docker-compose.yml
 ├── LICENSE
 ├── README.md
 └── START_HERE.md
 ```
 
----
-
-## 🔧 Variáveis de Ambiente
+## Variáveis de Ambiente
 
 ### Backend (.env)
 
 ```env
-# Shopify Integration
-SHOPIFY_SHARED_SECRET=your_shopify_secret
+# Shopify
+SHOPIFY_SHARED_SECRET=seu_shopify_secret
 
-# API de Fulfillment
-FULFILLMENT_URL=https://your-fulfillment-api.com/orders
+# Fulfillment API
+FULFILLMENT_URL=https://sua-api-fulfillment.com/orders
 
 # Servidor
 PORT=3001
@@ -606,10 +188,10 @@ DATABASE_URL=./data/app.db
 NODE_ENV=production
 
 # Segurança
-ADMIN_TOKEN=your_secure_random_token
+ADMIN_TOKEN=seu_token_seguro_aqui
 
 # Telegram (opcional)
-TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_BOT_TOKEN=seu_bot_token
 TELEGRAM_ADMIN_CHAT_IDS=123456789
 ```
 
@@ -617,147 +199,70 @@ TELEGRAM_ADMIN_CHAT_IDS=123456789
 
 ```env
 VITE_API_BASE=http://localhost:3001
-VITE_ADMIN_TOKEN=same_as_backend_admin_token
+VITE_ADMIN_TOKEN=mesmo_valor_do_backend
 ```
 
----
+**Importante**: `ADMIN_TOKEN` e `VITE_ADMIN_TOKEN` devem ser idênticos.
 
-## 🧪 Testes
+## API Endpoints
+
+### Públicos
+
+```
+POST   /webhook/shopify    # Recebe webhooks (validação HMAC)
+GET    /healthz            # Health check
+```
+
+### Administrativos (requerem header `x-admin-token`)
+
+**Métricas:**
+```
+GET    /metrics/summary?range={today|7d|30d}
+GET    /metrics/timeseries?range={today|7d|30d}
+GET    /metrics/heatmap
+```
+
+**Pedidos:**
+```
+GET    /orders?status=&q=&range=&specificDate=&limit=&offset=
+GET    /orders/:id
+GET    /orders/:id/logs
+POST   /orders/:id/retry
+POST   /orders/bulk/retry
+PATCH  /orders/:id
+```
+
+**Relatórios:**
+```
+GET    /reports/export.csv?range={today|7d|30d}&status=
+```
+
+Coleção completa: [docs/api_collection.json](docs/api_collection.json)
+
+## Preview
+
+![shopify_gif1](https://github.com/user-attachments/assets/bd22c24e-b975-412c-bd59-c82647ee10a5)
+
+*Dashboard com dados fictícios de demonstração*
+
+## Testes
 
 ```bash
 cd backend
 npm test
 ```
 
-**Cobertura:**
-- ✅ Validação HMAC
-- ✅ Idempotency check
-- ✅ Webhook processing
-- ✅ Order status updates
+Cobertura:
+- Validação HMAC de webhooks
+- Verificação de idempotência
+- Processamento de pedidos
+- Atualização de status
 
----
+## Documentação Adicional
 
-## 🐳 Docker
+- **[START_HERE.md](START_HERE.md)**: Guia completo de instalação, configuração e troubleshooting
+- **[docs/api_collection.json](docs/api_collection.json)**: Coleção Postman/Insomnia
 
-### Desenvolvimento
-
-```bash
-docker-compose up
-```
-
-### Produção
-
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-**Inclui:**
-- Health checks automáticos
-- Volumes persistentes
-- Restart policies
-- Network isolation
-
----
-
-## 📊 Database Schema
-
-### Orders
-```sql
-id, created_at, status, payload, last_error, 
-attempts, sent_at, note
-```
-
-### Order Logs
-```sql
-id, order_id, event, message, created_at
-```
-
-### Webhook IDs
-```sql
-webhook_id, received_at
-```
-
-Índices em `status`, `created_at`, `order_id` para performance.
-
----
-
-## 🎨 Features Avançadas
-
-### 🌙 Dark Mode
-- Toggle no header
-- Cores otimizadas (GitHub Dark inspired)
-- Preferência persistida (localStorage)
-- Transição suave (0.3s)
-
-### 💾 Filtros Salvos
-- Salve combinações de filtros
-- Aplique com 1 clique
-- Gerencie facilmente
-
-### 📊 Drill-down
-- Clique em qualquer ponto do gráfico
-- Tabela filtra automaticamente
-- Badge visual de filtro ativo
-
----
-
-## 🚦 Roadmap
-
-### ✅ Implementado (v1.0)
-- Dashboard analytics completo
-- Telegram bot com 16 comandos
-- Alertas automáticos
-- Dark mode
-- Filtros salvos
-- Drill-down interativo
-- CSV export
-
-### 🔄 Próximas Versões
-- [ ] Multi-plataforma (WooCommerce, Mercado Livre)
-- [ ] Retry automático com backoff
-- [ ] Estatísticas por cliente
-- [ ] WebSocket real-time
-- [ ] Testes E2E completos
-
----
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas!
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'feat: add amazing feature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
----
-
-## 📝 Licença
+## Licença
 
 Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhes.
-
----
-
-## 👨‍💻 Desenvolvido por
-
-<div align="center">
-
-### **Ampliaro Studio**
-
-*Building exceptional digital experiences*
-
-[![GitHub](https://img.shields.io/badge/GitHub-ampliaro-181717?logo=github)](https://github.com/ampliaro)
-
-
-## 🌟 Mostre seu Apoio
-
-Se este projeto foi útil, considere dar uma ⭐ no repositório!
-
----
-
-<div align="center">
-
-**[⬆ Voltar ao Topo](#-shopify-automation-dashboard)**
-
-</div>
