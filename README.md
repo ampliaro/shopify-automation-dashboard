@@ -2,6 +2,12 @@
 
 Dashboard comercial para pedidos Shopify com métricas (Hoje/7d/30d), comparativos, heatmap opcional, retries (individual e em lote) e logs. Backend Node/Express com validação HMAC e idempotência; frontend React + Vite. Docker e seed inclusos.
 
+## Preview
+
+![shopify_gif1](https://github.com/user-attachments/assets/bd22c24e-b975-412c-bd59-c82647ee10a5)
+
+*Dashboard com dados fictícios de demonstração*
+
 ## Recursos Principais
 
 - Webhook `orders/create` com validação HMAC e idempotência
@@ -239,11 +245,6 @@ GET    /reports/export.csv?range={today|7d|30d}&status=
 
 Coleção completa: [docs/api_collection.json](docs/api_collection.json)
 
-## Preview
-
-![shopify_gif1](https://github.com/user-attachments/assets/bd22c24e-b975-412c-bd59-c82647ee10a5)
-
-*Dashboard com dados fictícios de demonstração*
 
 ## Testes
 
