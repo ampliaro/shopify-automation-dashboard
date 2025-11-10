@@ -34,7 +34,6 @@
 
 ## Quick Start
 
-> **Primeira vez?** Veja [DEPLOY.md](DEPLOY.md) para instruções de deploy na Vercel.
 
 ```bash
 # Clone e instale
@@ -239,17 +238,39 @@ ngrok http 3001
 
 ### Vercel (Frontend com Demo Mode)
 
+**Via CLI:**
+
 ```bash
 cd frontend
 npm run build
+
+# Primeira vez
+npx vercel --prod
+
+# Configurar variáveis de ambiente
+vercel env add VITE_DEMO_MODE
+# Digite: true
+
+vercel env add VITE_CONTACT_URL  
+# Digite: mailto:studio@ampliaro.com
+
+# Redeploy
 vercel --prod
 ```
 
-**Environment Variables:**
-- `VITE_DEMO_MODE=true`
-- `VITE_CONTACT_URL=mailto:studio@ampliaro.com`
+**Via Dashboard:**
 
-📖 Guia completo: [DEPLOY.md](DEPLOY.md)
+1. Importe o repositório no [Vercel](https://vercel.com/new)
+2. Configure:
+   - **Root Directory:** `frontend`
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+3. Adicione Environment Variables:
+   - `VITE_DEMO_MODE=true`
+   - `VITE_CONTACT_URL=mailto:studio@ampliaro.com`
+4. Deploy
+
+O `vercel.json` já está configurado com SPA rewrites e security headers.
 
 ### Docker
 
