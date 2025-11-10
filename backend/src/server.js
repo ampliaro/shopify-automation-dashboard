@@ -9,8 +9,9 @@ import { captureRawBody, validateHmac, checkIdempotency } from './hmac.js';
 import { processOrder, retryOrder } from './orders.js';
 import { getMetricsSummary, getTimeseriesData, getHeatmapData } from './metrics.js';
 import { generateOrdersCSV } from './reports.js';
-import { initTelegramBot, stopTelegramBot } from './telegram.js';
-import { startMonitoring, stopMonitoring } from './monitoring.js';
+// Telegram integration disabled (dependency removed for security)
+// import { initTelegramBot, stopTelegramBot } from './telegram.js';
+// import { startMonitoring, stopMonitoring } from './monitoring.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,15 +53,8 @@ async function startServer() {
   const dbPath = path.resolve(__dirname, '..', env.DATABASE_URL);
   await initDb(dbPath);
 
-  // Inicializa Telegram Bot (opcional)
-  if (env.TELEGRAM_BOT_TOKEN) {
-    initTelegramBot(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_ADMIN_CHAT_IDS, env.FULFILLMENT_URL);
-    
-    // Inicia monitoramento automático (checa a cada 15 minutos)
-    startMonitoring(15);
-  } else {
-    console.log('[TELEGRAM] Bot token not configured, skipping Telegram integration');
-  }
+  // Telegram Bot integration disabled
+  console.log('[TELEGRAM] Integration disabled (dependency removed for security)');
 
   // CORS restrito ao frontend local
   app.use(cors({
@@ -492,8 +486,8 @@ async function startServer() {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     console.log('[SERVER] SIGTERM received, closing server...');
-    stopMonitoring();
-    stopTelegramBot();
+    // stopMonitoring(); // Telegram integration disabled
+    // stopTelegramBot(); // Telegram integration disabled
     server.close(() => {
       console.log('[SERVER] Server closed');
       process.exit(0);
@@ -502,8 +496,8 @@ async function startServer() {
 
   process.on('SIGINT', () => {
     console.log('[SERVER] SIGINT received, closing server...');
-    stopMonitoring();
-    stopTelegramBot();
+    // stopMonitoring(); // Telegram integration disabled
+    // stopTelegramBot(); // Telegram integration disabled
     server.close(() => {
       console.log('[SERVER] Server closed');
       process.exit(0);
