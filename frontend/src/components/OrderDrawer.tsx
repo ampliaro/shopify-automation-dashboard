@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { 
-  Order, 
-  OrderLog, 
-  fetchOrderById, 
+import {
+  Order,
+  OrderLog,
+  fetchOrderById,
   fetchOrderLogs,
   updateOrder,
   retryOrder,
   formatDate,
   getStatusColor,
-  getStatusLabel
+  getStatusLabel,
 } from '../lib/api';
 
 interface OrderDrawerProps {
@@ -57,7 +57,7 @@ export default function OrderDrawer({ orderId, onClose, onUpdate }: OrderDrawerP
     try {
       const [orderData, logsData] = await Promise.all([
         fetchOrderById(orderId),
-        fetchOrderLogs(orderId)
+        fetchOrderLogs(orderId),
       ]);
       setOrder(orderData);
       setLogs(logsData);
@@ -127,15 +127,17 @@ export default function OrderDrawer({ orderId, onClose, onUpdate }: OrderDrawerP
           <div>
             <h2>Pedido #{orderId}</h2>
             {order && (
-              <span 
-                className="status-badge" 
+              <span
+                className="status-badge"
                 style={{ backgroundColor: getStatusColor(order.status) }}
               >
                 {getStatusLabel(order.status)}
               </span>
             )}
           </div>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button className="close-btn" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         <div className="drawer-content">
@@ -149,7 +151,9 @@ export default function OrderDrawer({ orderId, onClose, onUpdate }: OrderDrawerP
                 <div className="info-grid">
                   <div>
                     <strong>Nome:</strong>
-                    <p>{order.payload.customer?.first_name} {order.payload.customer?.last_name}</p>
+                    <p>
+                      {order.payload.customer?.first_name} {order.payload.customer?.last_name}
+                    </p>
                   </div>
                   <div>
                     <strong>Email:</strong>
@@ -163,9 +167,12 @@ export default function OrderDrawer({ orderId, onClose, onUpdate }: OrderDrawerP
                 <section className="drawer-section">
                   <h3>Endereço de Entrega</h3>
                   <p>
-                    {order.payload.shipping_address.address1}<br />
-                    {order.payload.shipping_address.city}, {order.payload.shipping_address.province}<br />
-                    CEP: {order.payload.shipping_address.zip}<br />
+                    {order.payload.shipping_address.address1}
+                    <br />
+                    {order.payload.shipping_address.city}, {order.payload.shipping_address.province}
+                    <br />
+                    CEP: {order.payload.shipping_address.zip}
+                    <br />
                     {order.payload.shipping_address.country}
                   </p>
                 </section>
@@ -233,7 +240,7 @@ export default function OrderDrawer({ orderId, onClose, onUpdate }: OrderDrawerP
                   placeholder="Adicionar nota ao pedido..."
                   rows={3}
                 />
-                <button 
+                <button
                   className="btn-secondary"
                   onClick={handleSaveNote}
                   disabled={updating || note === (order.note || '')}
@@ -267,20 +274,12 @@ export default function OrderDrawer({ orderId, onClose, onUpdate }: OrderDrawerP
         {order && (
           <div className="drawer-footer">
             {order.status === 'failed' && (
-              <button
-                className="btn-primary"
-                onClick={handleRetry}
-                disabled={retrying}
-              >
+              <button className="btn-primary" onClick={handleRetry} disabled={retrying}>
                 {retrying ? 'Retentando...' : 'Retry'}
               </button>
             )}
             {order.status !== 'sent' && (
-              <button
-                className="btn-success"
-                onClick={handleMarkAsSent}
-                disabled={updating}
-              >
+              <button className="btn-success" onClick={handleMarkAsSent} disabled={updating}>
                 Marcar como Enviado
               </button>
             )}
@@ -290,4 +289,3 @@ export default function OrderDrawer({ orderId, onClose, onUpdate }: OrderDrawerP
     </>
   );
 }
-

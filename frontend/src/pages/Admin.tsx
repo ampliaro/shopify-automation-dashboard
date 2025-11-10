@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
-import { 
-  fetchOrders, 
+import {
+  fetchOrders,
   fetchMetricsSummary,
   fetchTimeseries,
   fetchHeatmap,
   bulkRetryOrders,
   exportCSV,
-  formatDate, 
-  getStatusColor, 
+  formatDate,
+  getStatusColor,
   getStatusLabel,
   type Order,
   type MetricsSummary,
   type TimeseriesData,
-  type HeatmapData
+  type HeatmapData,
 } from '../lib/api';
 import MetricCards from '../components/MetricCards';
 import TimeseriesChart from '../components/TimeseriesChart';
@@ -29,7 +29,7 @@ export default function Admin() {
   const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
   const [timeseries, setTimeseries] = useState<TimeseriesData | null>(null);
   const [heatmap, setHeatmap] = useState<HeatmapData | null>(null);
-  
+
   // Estado de UI
   const [loading, setLoading] = useState(true);
   const [metricsLoading, setMetricsLoading] = useState(true);
@@ -41,12 +41,15 @@ export default function Admin() {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [total, setTotal] = useState(0);
-  
+
   // Estado de ações
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [bulkRetrying, setBulkRetrying] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
@@ -75,7 +78,7 @@ export default function Admin() {
       setMetricsLoading(true);
       const [metricsData, timeseriesData] = await Promise.all([
         fetchMetricsSummary(period),
-        fetchTimeseries(period)
+        fetchTimeseries(period),
       ]);
       setMetrics(metricsData);
       setTimeseries(timeseriesData);
@@ -101,10 +104,10 @@ export default function Admin() {
       setLoading(true);
       setError(null);
       const response = await fetchOrders(
-        statusFilter, 
-        limit, 
-        offset, 
-        searchQuery, 
+        statusFilter,
+        limit,
+        offset,
+        searchQuery,
         specificDate ? undefined : period, // Se tem data específica, não usa range
         specificDate || undefined
       );
@@ -156,7 +159,11 @@ export default function Admin() {
     setOffset(0);
   };
 
-  const handleApplySavedFilter = (filter: { status: string; searchQuery: string; period: string }) => {
+  const handleApplySavedFilter = (filter: {
+    status: string;
+    searchQuery: string;
+    period: string;
+  }) => {
     setPeriod(filter.period as PeriodRange);
     setStatusFilter(filter.status);
     setSearchQuery(filter.searchQuery);
@@ -172,7 +179,7 @@ export default function Admin() {
 
   const handleSelectAll = (e: any) => {
     if (e.target.checked) {
-      const failedIds = orders.filter(o => o.status === 'failed').map(o => o.id);
+      const failedIds = orders.filter((o) => o.status === 'failed').map((o) => o.id);
       setSelectedOrders(new Set(failedIds));
     } else {
       setSelectedOrders(new Set());
@@ -199,7 +206,10 @@ export default function Admin() {
     setBulkRetrying(true);
     try {
       const result = await bulkRetryOrders(Array.from(selectedOrders));
-      showNotification('success', `${result.summary.succeeded} de ${result.summary.total} pedidos retentados com sucesso`);
+      showNotification(
+        'success',
+        `${result.summary.succeeded} de ${result.summary.total} pedidos retentados com sucesso`
+      );
       setSelectedOrders(new Set());
       await Promise.all([loadOrders(), loadMetrics()]);
     } catch (err) {
@@ -247,9 +257,10 @@ export default function Admin() {
 
   const currentPage = Math.floor(offset / limit) + 1;
   const totalPages = Math.ceil(total / limit);
-  const failureRate = metrics && metrics.current.totalOrders > 0 
-    ? (metrics.current.failedOrders / metrics.current.totalOrders) * 100 
-    : 0;
+  const failureRate =
+    metrics && metrics.current.totalOrders > 0
+      ? (metrics.current.failedOrders / metrics.current.totalOrders) * 100
+      : 0;
 
   return (
     <div className="admin-container">
@@ -260,8 +271,8 @@ export default function Admin() {
           <p className="subtitle">Shopify Automation</p>
         </div>
         <div className="header-actions">
-          <button 
-            className="btn-icon" 
+          <button
+            className="btn-icon"
             onClick={toggleDarkMode}
             title={darkMode ? 'Modo Claro' : 'Modo Escuro'}
           >
@@ -270,7 +281,13 @@ export default function Admin() {
           <button className="btn-secondary" onClick={handleExportCSV}>
             📥 Exportar CSV
           </button>
-          <button className="btn-secondary" onClick={() => { loadOrders(); loadMetrics(); }}>
+          <button
+            className="btn-secondary"
+            onClick={() => {
+              loadOrders();
+              loadMetrics();
+            }}
+          >
             🔄 Atualizar
           </button>
         </div>
@@ -278,9 +295,7 @@ export default function Admin() {
 
       {/* Notificação */}
       {notification && (
-        <div className={`notification ${notification.type}`}>
-          {notification.message}
-        </div>
+        <div className={`notification ${notification.type}`}>{notification.message}</div>
       )}
 
       {/* Alerta de taxa de falha alta */}
@@ -316,11 +331,7 @@ export default function Admin() {
       <MetricCards summary={metrics} loading={metricsLoading} />
 
       {/* Gráfico de Série Temporal */}
-      <TimeseriesChart 
-        data={timeseries} 
-        loading={metricsLoading} 
-        onDateClick={handleDateClick}
-      />
+      <TimeseriesChart data={timeseries} loading={metricsLoading} onDateClick={handleDateClick} />
 
       {/* Heatmap (apenas para "Hoje") */}
       {showHeatmap && <Heatmap data={heatmap} loading={metricsLoading} />}
@@ -343,14 +354,16 @@ export default function Admin() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button type="submit" className="btn-search">🔍</button>
+          <button type="submit" className="btn-search">
+            🔍
+          </button>
         </form>
 
         <div className="filter-group">
           <label htmlFor="status-filter">Status:</label>
-          <select 
+          <select
             id="status-filter"
-            value={statusFilter} 
+            value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
               setOffset(0);
@@ -371,7 +384,9 @@ export default function Admin() {
       {/* Indicador de Filtro de Data Específica */}
       {specificDate && (
         <div className="date-filter-badge">
-          <span>📅 Filtrando por: <strong>{new Date(specificDate).toLocaleDateString('pt-BR')}</strong></span>
+          <span>
+            📅 Filtrando por: <strong>{new Date(specificDate).toLocaleDateString('pt-BR')}</strong>
+          </span>
           <button className="clear-filter-btn" onClick={handleClearDateFilter}>
             ✕ Limpar filtro
           </button>
@@ -382,31 +397,20 @@ export default function Admin() {
       {selectedOrders.size > 0 && (
         <div className="bulk-actions-bar">
           <span>{selectedOrders.size} pedido(s) selecionado(s)</span>
-          <button
-            className="btn-primary"
-            onClick={handleBulkRetry}
-            disabled={bulkRetrying}
-          >
+          <button className="btn-primary" onClick={handleBulkRetry} disabled={bulkRetrying}>
             {bulkRetrying ? 'Retentando...' : 'Retry Selecionados'}
           </button>
-          <button
-            className="btn-secondary"
-            onClick={() => setSelectedOrders(new Set())}
-          >
+          <button className="btn-secondary" onClick={() => setSelectedOrders(new Set())}>
             Limpar Seleção
           </button>
         </div>
       )}
 
       {/* Mensagens de Estado */}
-      {error && (
-        <div className="error-message">{error}</div>
-      )}
+      {error && <div className="error-message">{error}</div>}
 
       {!loading && !error && orders.length === 0 && (
-        <div className="empty-state">
-          Nenhum pedido encontrado
-        </div>
+        <div className="empty-state">Nenhum pedido encontrado</div>
       )}
 
       {/* Tabela de Pedidos */}
@@ -420,8 +424,12 @@ export default function Admin() {
                     <input
                       type="checkbox"
                       onChange={handleSelectAll}
-                      checked={selectedOrders.size > 0 && 
-                        orders.filter(o => o.status === 'failed').every(o => selectedOrders.has(o.id))}
+                      checked={
+                        selectedOrders.size > 0 &&
+                        orders
+                          .filter((o) => o.status === 'failed')
+                          .every((o) => selectedOrders.has(o.id))
+                      }
                     />
                   </th>
                   <th>ID</th>
@@ -434,7 +442,7 @@ export default function Admin() {
               </thead>
               <tbody>
                 {orders.map((order) => (
-                  <tr 
+                  <tr
                     key={order.id}
                     onClick={() => handleOrderClick(order.id)}
                     className="clickable-row"
@@ -450,20 +458,20 @@ export default function Admin() {
                     <td className="order-id">{order.id}</td>
                     <td>{formatDate(order.created_at)}</td>
                     <td>
-                      <span 
-                        className="status-badge" 
+                      <span
+                        className="status-badge"
                         style={{ backgroundColor: getStatusColor(order.status) }}
                       >
                         {getStatusLabel(order.status)}
                       </span>
                     </td>
-                    <td>
-                      {order.payload.customer?.email || order.payload.email || '-'}
-                    </td>
+                    <td>{order.payload.customer?.email || order.payload.email || '-'}</td>
                     <td className="attempts">{order.attempts}</td>
                     <td>
                       {order.note ? (
-                        <span className="note-indicator" title={order.note}>📝</span>
+                        <span className="note-indicator" title={order.note}>
+                          📝
+                        </span>
                       ) : (
                         '-'
                       )}
@@ -476,21 +484,13 @@ export default function Admin() {
 
           {/* Paginação */}
           <div className="pagination">
-            <button 
-              className="page-btn" 
-              onClick={handlePrevPage} 
-              disabled={offset === 0}
-            >
+            <button className="page-btn" onClick={handlePrevPage} disabled={offset === 0}>
               ← Anterior
             </button>
             <span className="page-info">
               Página {currentPage} de {totalPages}
             </span>
-            <button 
-              className="page-btn" 
-              onClick={handleNextPage} 
-              disabled={!hasMore}
-            >
+            <button className="page-btn" onClick={handleNextPage} disabled={!hasMore}>
               Próxima →
             </button>
           </div>

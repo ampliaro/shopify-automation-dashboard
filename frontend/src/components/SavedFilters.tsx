@@ -15,11 +15,11 @@ interface SavedFiltersProps {
   currentPeriod: string;
 }
 
-export default function SavedFilters({ 
-  onApplyFilter, 
-  currentStatus, 
+export default function SavedFilters({
+  onApplyFilter,
+  currentStatus,
   currentSearch,
-  currentPeriod 
+  currentPeriod,
 }: SavedFiltersProps) {
   const [savedFilters, setSavedFilters] = useState<Filter[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -55,7 +55,7 @@ export default function SavedFilters({
       name: filterName.trim(),
       status: currentStatus,
       searchQuery: currentSearch,
-      period: currentPeriod
+      period: currentPeriod,
     };
 
     const updated = [...savedFilters, newFilter];
@@ -66,8 +66,8 @@ export default function SavedFilters({
 
   const handleDeleteFilter = (id: string) => {
     if (!confirm('Deseja deletar este filtro salvo?')) return;
-    
-    const updated = savedFilters.filter(f => f.id !== id);
+
+    const updated = savedFilters.filter((f) => f.id !== id);
     saveToLocalStorage(updated);
   };
 
@@ -75,7 +75,7 @@ export default function SavedFilters({
     onApplyFilter({
       status: filter.status,
       searchQuery: filter.searchQuery,
-      period: filter.period
+      period: filter.period,
     });
     setShowDropdown(false);
   };
@@ -83,16 +83,10 @@ export default function SavedFilters({
   return (
     <div className="saved-filters-container">
       <div className="saved-filters-actions">
-        <button 
-          className="btn-secondary"
-          onClick={() => setShowDropdown(!showDropdown)}
-        >
+        <button className="btn-secondary" onClick={() => setShowDropdown(!showDropdown)}>
           ⭐ Filtros Salvos {savedFilters.length > 0 && `(${savedFilters.length})`}
         </button>
-        <button 
-          className="btn-secondary"
-          onClick={() => setShowSaveDialog(!showSaveDialog)}
-        >
+        <button className="btn-secondary" onClick={() => setShowSaveDialog(!showSaveDialog)}>
           💾 Salvar Filtro Atual
         </button>
       </div>
@@ -101,23 +95,18 @@ export default function SavedFilters({
       {showDropdown && (
         <div className="filters-dropdown">
           {savedFilters.length === 0 ? (
-            <div className="empty-filters">
-              Nenhum filtro salvo ainda
-            </div>
+            <div className="empty-filters">Nenhum filtro salvo ainda</div>
           ) : (
-            savedFilters.map(filter => (
+            savedFilters.map((filter) => (
               <div key={filter.id} className="filter-item">
-                <button 
-                  className="filter-apply-btn"
-                  onClick={() => handleApplyFilter(filter)}
-                >
+                <button className="filter-apply-btn" onClick={() => handleApplyFilter(filter)}>
                   <strong>{filter.name}</strong>
                   <div className="filter-details">
                     {filter.period} • {filter.status !== 'all' ? filter.status : 'Todos'}
                     {filter.searchQuery && ` • "${filter.searchQuery}"`}
                   </div>
                 </button>
-                <button 
+                <button
                   className="filter-delete-btn"
                   onClick={() => handleDeleteFilter(filter.id)}
                   title="Deletar"
@@ -159,4 +148,3 @@ export default function SavedFilters({
     </div>
   );
 }
-

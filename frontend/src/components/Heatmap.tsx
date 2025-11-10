@@ -10,9 +10,9 @@ function getIntensityColor(count: number, max: number): { background: string; te
   if (count === 0) {
     return { background: '#f5f5f5', textColor: '#999' };
   }
-  
+
   const intensity = count / max;
-  
+
   if (intensity < 0.2) return { background: '#E8F5E9', textColor: '#2E7D32' }; // Verde muito claro
   if (intensity < 0.4) return { background: '#C8E6C9', textColor: '#1B5E20' }; // Verde claro
   if (intensity < 0.6) return { background: '#81C784', textColor: '#1B5E20' }; // Verde médio claro
@@ -47,9 +47,9 @@ export default function Heatmap({ data, loading }: HeatmapProps) {
             <div
               key={hour}
               className="heatmap-cell"
-              style={{ 
+              style={{
                 backgroundColor: colors.background,
-                color: colors.textColor
+                color: colors.textColor,
               }}
               onMouseEnter={() => setHoveredCell(hour)}
               onMouseLeave={() => setHoveredCell(null)}
@@ -73,4 +73,3 @@ export default function Heatmap({ data, loading }: HeatmapProps) {
     </div>
   );
 }
-
