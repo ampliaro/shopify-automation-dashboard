@@ -1,15 +1,32 @@
 import { Link } from 'react-router-dom';
 import './Landing.css';
+import { useEffect } from 'react';
 
 const getContactUrl = (): string => {
   return (
     import.meta.env.VITE_CONTACT_URL ||
-    'mailto:contato@exemplo.com?subject=Interesse%20no%20Dashboard%20Shopify'
+    'mailto:contato@studioampliaro.com?subject=Interesse%20no%20Shopify%20Dashboard'
   );
 };
 
 export default function Landing() {
   const contactUrl = getContactUrl();
+
+  useEffect(() => {
+    // Load Feather Icons
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/feather-icons';
+    script.onload = () => {
+      if (window.feather) {
+        window.feather.replace();
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   return (
     <div className="landing-container">
@@ -17,12 +34,23 @@ export default function Landing() {
       <header className="landing-header">
         <div className="header-content">
           <div className="logo">
-            <span className="logo-icon">📊</span>
+            <i data-feather="activity" className="logo-icon"></i>
             <span className="logo-text">Shopify Automation</span>
           </div>
           <nav className="header-nav">
-            <a href={contactUrl} className="nav-link" target="_blank" rel="noopener noreferrer">
-              Falar comigo
+            <Link to="/demo" className="nav-link">
+              Demo
+            </Link>
+            <a
+              href="https://github.com/ampliaro/shopify-automation-dashboard"
+              className="nav-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            <a href={contactUrl} className="nav-link-cta" target="_blank" rel="noopener noreferrer">
+              Começar Agora
             </a>
           </nav>
         </div>
@@ -30,74 +58,108 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title">
-            Dashboard de automações e métricas para Shopify — projeto de portfólio
-          </h1>
-          <p className="hero-subtitle">
-            Exemplo de como entrego painéis claros, rápidos e prontos para escalar integrações.
-          </p>
-          <p className="hero-subtitle-en">
-            Shopify automations & metrics dashboard — portfolio project
-          </p>
+        <div className="hero-badge">
+          <i data-feather="zap" className="badge-icon"></i>
+          <span>Open Source</span>
+        </div>
+        
+        <h1 className="hero-title">
+          Transforme pedidos Shopify em<br />
+          <span className="gradient-text">insights acionáveis</span>
+        </h1>
+        
+        <p className="hero-subtitle">
+          Dashboard comercial com métricas em tempo real, automações inteligentes<br />
+          e gestão completa de pedidos. Configure em minutos. Escale sem limites.
+        </p>
 
-          <div className="hero-ctas">
-            <Link to="/demo" className="btn btn-primary">
-              Ver demo agora
-            </Link>
-            <a
-              href="https://github.com/ampliaro/shopify-automation-dashboard"
-              className="btn btn-secondary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="btn-icon">{'<>'}</span> Ver código no GitHub
-            </a>
-            <a
-              href={contactUrl}
-              className="btn btn-tertiary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Falar comigo
-            </a>
-          </div>
+        <div className="hero-ctas">
+          <Link to="/demo" className="btn btn-primary">
+            <i data-feather="play-circle"></i>
+            <span>Ver Demo</span>
+          </Link>
+          <a
+            href="https://github.com/ampliaro/shopify-automation-dashboard"
+            className="btn btn-secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i data-feather="github"></i>
+            <span>Ver no GitHub</span>
+          </a>
         </div>
 
-        <div className="hero-visual">
-          <div className="dashboard-preview">
-            <div className="preview-header">
-              <div className="preview-dots">
+        <div className="hero-badges">
+          <div className="info-badge">
+            <i data-feather="shield"></i>
+            <span>MIT License</span>
+          </div>
+          <div className="info-badge">
+            <i data-feather="cpu"></i>
+            <span>Node.js 18+</span>
+          </div>
+          <div className="info-badge">
+            <i data-feather="check-circle"></i>
+            <span>Production Ready</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Preview */}
+      <section className="demo-preview-section">
+        <div className="demo-preview">
+          <div className="preview-window">
+            <div className="window-header">
+              <div className="window-dots">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
+              <div className="window-title">Dashboard</div>
             </div>
-            <div className="preview-content">
-              <div className="preview-cards">
-                <div className="preview-card">
-                  <div className="card-label">Pedidos</div>
-                  <div className="card-value">1,234</div>
-                  <div className="card-trend positive">+12%</div>
+            <div className="window-content">
+              <div className="preview-metrics">
+                <div className="metric-item">
+                  <div className="metric-icon">
+                    <i data-feather="shopping-cart"></i>
+                  </div>
+                  <div className="metric-data">
+                    <div className="metric-value">1,234</div>
+                    <div className="metric-label">Pedidos</div>
+                  </div>
+                  <div className="metric-change positive">+12%</div>
                 </div>
-                <div className="preview-card">
-                  <div className="card-label">Taxa Sucesso</div>
-                  <div className="card-value">98.5%</div>
-                  <div className="card-trend positive">+2.3%</div>
-                </div>
-                <div className="preview-card">
-                  <div className="card-label">Tempo Médio</div>
-                  <div className="card-value">1.2s</div>
-                  <div className="card-trend positive">-0.3s</div>
+                <div className="metric-item">
+                  <div className="metric-icon success">
+                    <i data-feather="trending-up"></i>
+                  </div>
+                  <div className="metric-data">
+                    <div className="metric-value">98.5%</div>
+                    <div className="metric-label">Taxa de Sucesso</div>
+                  </div>
+                  <div className="metric-change positive">+2.3%</div>
                 </div>
               </div>
               <div className="preview-chart">
-                <svg viewBox="0 0 300 100" className="chart-svg">
-                  <polyline
-                    points="0,80 30,70 60,75 90,60 120,55 150,40 180,45 210,30 240,35 270,25 300,20"
-                    fill="none"
+                <svg viewBox="0 0 400 120" className="chart-svg">
+                  <defs>
+                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="currentColor" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M0,80 L40,70 L80,75 L120,60 L160,55 L200,40 L240,45 L280,30 L320,35 L360,25 L400,20"
+                    fill="url(#chartGradient)"
                     stroke="currentColor"
                     strokeWidth="2"
+                  />
+                  <path
+                    d="M0,80 L40,70 L80,75 L120,60 L160,55 L200,40 L240,45 L280,30 L320,35 L360,25 L400,20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
                   />
                 </svg>
               </div>
@@ -108,89 +170,177 @@ export default function Landing() {
 
       {/* Features Section */}
       <section className="features-section">
-        <h2 className="section-title">Principais características</h2>
+        <div className="section-header">
+          <h2 className="section-title">Recursos Principais</h2>
+          <p className="section-subtitle">
+            Tudo que você precisa para gerenciar pedidos Shopify com eficiência
+          </p>
+        </div>
+
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">🔄</div>
-            <h3 className="feature-title">Rotinas automáticas e métricas acionáveis</h3>
-            <p className="feature-description">Automations & actionable metrics</p>
+            <div className="feature-icon">
+              <i data-feather="refresh-cw"></i>
+            </div>
+            <h3 className="feature-title">Automação Inteligente</h3>
+            <p className="feature-description">
+              Webhooks validados com HMAC, idempotência garantida e retry automático para pedidos falhados.
+            </p>
           </div>
+
           <div className="feature-card">
-            <div className="feature-icon">🎯</div>
-            <h3 className="feature-title">Mock data para demo pública sem chaves</h3>
-            <p className="feature-description">Mock data for public demo</p>
+            <div className="feature-icon">
+              <i data-feather="bar-chart-2"></i>
+            </div>
+            <h3 className="feature-title">Métricas em Tempo Real</h3>
+            <p className="feature-description">
+              Acompanhe taxa de sucesso, tempo médio de processamento e comparativos de período.
+            </p>
           </div>
+
           <div className="feature-card">
-            <div className="feature-icon">⚡</div>
-            <h3 className="feature-title">Arquitetura simples e fácil de manter</h3>
-            <p className="feature-description">Simple, maintainable architecture</p>
+            <div className="feature-icon">
+              <i data-feather="filter"></i>
+            </div>
+            <h3 className="feature-title">Filtros Avançados</h3>
+            <p className="feature-description">
+              Busque por status, período, data específica. Salve filtros personalizados para agilizar seu fluxo.
+            </p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <i data-feather="layers"></i>
+            </div>
+            <h3 className="feature-title">Gestão em Lote</h3>
+            <p className="feature-description">
+              Retente múltiplos pedidos simultaneamente, exporte relatórios CSV com métricas agregadas.
+            </p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <i data-feather="clock"></i>
+            </div>
+            <h3 className="feature-title">Timeline Completa</h3>
+            <p className="feature-description">
+              Visualize histórico de eventos, logs detalhados e notas customizadas para cada pedido.
+            </p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <i data-feather="moon"></i>
+            </div>
+            <h3 className="feature-title">Dark Mode</h3>
+            <p className="feature-description">
+              Interface adaptável com tema claro e escuro, perfeita para longas sessões de monitoramento.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Tech Stack Section */}
+      {/* Tech Stack */}
       <section className="stack-section">
-        <h2 className="section-title">Stack Técnica</h2>
-        <div className="stack-badges">
-          <span className="badge">React 18</span>
-          <span className="badge">TypeScript</span>
-          <span className="badge">Vite</span>
-          <span className="badge">Recharts</span>
-          <span className="badge">Node.js</span>
-          <span className="badge">Express</span>
-          <span className="badge">SQLite</span>
+        <div className="section-header">
+          <h2 className="section-title">Stack Técnica</h2>
+        </div>
+        
+        <div className="stack-grid">
+          <div className="stack-category">
+            <h4>Frontend</h4>
+            <div className="stack-items">
+              <span className="stack-badge">React 18</span>
+              <span className="stack-badge">TypeScript</span>
+              <span className="stack-badge">Vite</span>
+              <span className="stack-badge">Recharts</span>
+            </div>
+          </div>
+          <div className="stack-category">
+            <h4>Backend</h4>
+            <div className="stack-items">
+              <span className="stack-badge">Node.js</span>
+              <span className="stack-badge">Express</span>
+              <span className="stack-badge">SQLite</span>
+              <span className="stack-badge">Zod</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* How it works Section */}
+      {/* How it Works */}
       <section className="how-section">
-        <h2 className="section-title">Como funciona</h2>
-        <div className="steps-grid">
-          <div className="step-card">
+        <div className="section-header">
+          <h2 className="section-title">Como Funciona</h2>
+          <p className="section-subtitle">
+            Três etapas simples para automatizar seus pedidos Shopify
+          </p>
+        </div>
+
+        <div className="steps-container">
+          <div className="step-item">
             <div className="step-number">1</div>
-            <h3 className="step-title">Coleta</h3>
-            <p className="step-description">
-              Webhooks Shopify recebidos e validados com HMAC, garantindo autenticidade e
-              idempotência.
-            </p>
+            <div className="step-content">
+              <h3 className="step-title">Coleta</h3>
+              <p className="step-description">
+                Webhooks Shopify são recebidos e validados com HMAC, garantindo autenticidade.
+                Sistema de idempotência evita processamento duplicado.
+              </p>
+            </div>
           </div>
-          <div className="step-card">
+
+          <div className="step-divider">
+            <i data-feather="arrow-down"></i>
+          </div>
+
+          <div className="step-item">
             <div className="step-number">2</div>
-            <h3 className="step-title">Processamento</h3>
-            <p className="step-description">
-              Pedidos são processados, enviados para fulfillment e acompanhados com retry
-              automático.
-            </p>
+            <div className="step-content">
+              <h3 className="step-title">Processamento</h3>
+              <p className="step-description">
+                Pedidos são enviados para API de fulfillment. Em caso de falha, retry automático
+                com backoff exponencial garante entrega.
+              </p>
+            </div>
           </div>
-          <div className="step-card">
+
+          <div className="step-divider">
+            <i data-feather="arrow-down"></i>
+          </div>
+
+          <div className="step-item">
             <div className="step-number">3</div>
-            <h3 className="step-title">Visualização</h3>
-            <p className="step-description">
-              Dashboard exibe métricas em tempo real, gráficos de tendência e permite gerenciamento
-              manual.
-            </p>
+            <div className="step-content">
+              <h3 className="step-title">Visualização</h3>
+              <p className="step-description">
+                Dashboard exibe métricas em tempo real, gráficos de tendência e permite
+                intervenção manual quando necessário.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="cta-section">
-        <div className="cta-content">
-          <h2 className="cta-title">Pronto para ver em ação?</h2>
+        <div className="cta-card">
+          <h2 className="cta-title">Pronto para automatizar seus pedidos?</h2>
           <p className="cta-description">
             Explore a demo funcional com dados mockados ou veja o código completo no GitHub.
           </p>
           <div className="cta-buttons">
             <Link to="/demo" className="btn btn-primary btn-large">
-              Acessar Demo
+              <i data-feather="play-circle"></i>
+              <span>Acessar Demo</span>
             </Link>
             <a
-              href={contactUrl}
-              className="btn btn-tertiary btn-large"
+              href="https://github.com/ampliaro/shopify-automation-dashboard"
+              className="btn btn-secondary btn-large"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Falar comigo
+              <i data-feather="github"></i>
+              <span>Ver Código</span>
             </a>
           </div>
         </div>
@@ -199,39 +349,43 @@ export default function Landing() {
       {/* Footer */}
       <footer className="landing-footer">
         <div className="footer-content">
-          <p className="footer-note">
-            Projeto de portfólio por{' '}
-            <a href={contactUrl} target="_blank" rel="noopener noreferrer">
-              Rafael Gregório
-            </a>
-            . Não afiliado à Shopify.
-          </p>
+          <div className="footer-main">
+            <div className="footer-brand">
+              <i data-feather="activity" className="footer-icon"></i>
+              <span className="footer-logo">Studio Ampliaro</span>
+            </div>
+            <p className="footer-tagline">Soluções inteligentes para e-commerce</p>
+          </div>
+          
           <div className="footer-links">
             <a
               href="https://github.com/ampliaro/shopify-automation-dashboard"
               target="_blank"
               rel="noopener noreferrer"
             >
-              GitHub
+              <i data-feather="github"></i>
+              <span>GitHub</span>
             </a>
+            <span className="footer-divider">·</span>
             <a href={contactUrl} target="_blank" rel="noopener noreferrer">
-              Contato
+              <i data-feather="mail"></i>
+              <span>Contato</span>
             </a>
           </div>
+          
+          <p className="footer-note">
+            MIT License © 2025 · Não afiliado à Shopify
+          </p>
         </div>
       </footer>
-
-      {/* Mobile Sticky CTA */}
-      <div className="mobile-sticky-cta">
-        <a
-          href={contactUrl}
-          className="btn btn-primary btn-small"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Falar comigo
-        </a>
-      </div>
     </div>
   );
+}
+
+declare global {
+  interface Window {
+    feather?: {
+      replace: () => void;
+    };
+  }
 }
