@@ -1,5 +1,15 @@
+import {
+  getMockOrders,
+  getMockOrderById,
+  getMockOrderLogs,
+  mockMetricsSummary,
+  mockTimeseries,
+  mockHeatmap,
+} from '../mocks/data';
+
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
 const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || '';
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 
 export interface Order {
   id: string;
@@ -99,12 +109,17 @@ export async function fetchOrders(
   range?: string,
   specificDate?: string
 ): Promise<OrdersResponse> {
+  // Modo demo: retorna dados mockados
+  if (DEMO_MODE) {
+    return Promise.resolve(getMockOrders(status, limit, offset, searchQuery));
+  }
+
   const params = new URLSearchParams();
-  
+
   if (status && status !== 'all') {
     params.append('status', status);
   }
-  
+
   if (searchQuery) {
     params.append('q', searchQuery);
   }
@@ -116,7 +131,7 @@ export async function fetchOrders(
   if (specificDate) {
     params.append('specificDate', specificDate);
   }
-  
+
   params.append('limit', limit.toString());
   params.append('offset', offset.toString());
 
@@ -138,6 +153,15 @@ export async function fetchOrders(
  * Busca um pedido por ID
  */
 export async function fetchOrderById(orderId: string): Promise<Order> {
+  // Modo demo: retorna dados mockados
+  if (DEMO_MODE) {
+    const order = getMockOrderById(orderId);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    return Promise.resolve(order);
+  }
+
   const url = `${API_BASE}/orders/${orderId}`;
 
   const response = await fetch(url, {
@@ -156,6 +180,11 @@ export async function fetchOrderById(orderId: string): Promise<Order> {
  * Busca logs de um pedido
  */
 export async function fetchOrderLogs(orderId: string): Promise<OrderLog[]> {
+  // Modo demo: retorna dados mockados
+  if (DEMO_MODE) {
+    return Promise.resolve(getMockOrderLogs(orderId));
+  }
+
   const url = `${API_BASE}/orders/${orderId}/logs`;
 
   const response = await fetch(url, {
@@ -213,7 +242,10 @@ export async function bulkRetryOrders(orderIds: string[]): Promise<any> {
 /**
  * Atualiza um pedido (status ou nota)
  */
-export async function updateOrder(orderId: string, data: { status?: string; note?: string }): Promise<any> {
+export async function updateOrder(
+  orderId: string,
+  data: { status?: string; note?: string }
+): Promise<any> {
   const url = `${API_BASE}/orders/${orderId}`;
 
   const response = await fetch(url, {
@@ -234,6 +266,37 @@ export async function updateOrder(orderId: string, data: { status?: string; note
  * Busca métricas resumidas
  */
 export async function fetchMetricsSummary(range: string = '7d'): Promise<MetricsSummary> {
+  // Modo demo: retorna dados mockados
+  if (DEMO_MODE) {
+    return Promise.resolve({
+      ...mockMetricsSummary,
+      range,
+      period: {
+        start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        end: new Date().toISOString(),
+      },
+      deltas: {
+        totalOrders:
+          ((mockMetricsSummary.current.totalOrders - mockMetricsSummary.previous.totalOrders) /
+            mockMetricsSummary.previous.totalOrders) *
+          100,
+        successRate:
+          mockMetricsSummary.current.successRate - mockMetricsSummary.previous.successRate,
+        failedOrders:
+          ((mockMetricsSummary.current.failedOrders - mockMetricsSummary.previous.failedOrders) /
+            mockMetricsSummary.previous.failedOrders) *
+          100,
+        avgTimeToSent:
+          mockMetricsSummary.current.avgProcessingTime -
+          mockMetricsSummary.previous.avgProcessingTime,
+      },
+      current: {
+        ...mockMetricsSummary.current,
+        avgTimeToSent: mockMetricsSummary.current.avgProcessingTime,
+      },
+    } as MetricsSummary);
+  }
+
   const url = `${API_BASE}/metrics/summary?range=${range}`;
 
   const response = await fetch(url, {
@@ -252,6 +315,21 @@ export async function fetchMetricsSummary(range: string = '7d'): Promise<Metrics
  * Busca dados de série temporal
  */
 export async function fetchTimeseries(range: string = '7d'): Promise<TimeseriesData> {
+  // Modo demo: retorna dados mockados
+  if (DEMO_MODE) {
+    return Promise.resolve({
+      series: mockTimeseries.map((point) => ({
+        period: point.date,
+        total: point.received,
+        sent: point.sent,
+        failed: point.failed,
+        received: point.received,
+      })),
+      range,
+      dateFormat: 'YYYY-MM-DD',
+    });
+  }
+
   const url = `${API_BASE}/metrics/timeseries?range=${range}`;
 
   const response = await fetch(url, {
@@ -270,6 +348,14 @@ export async function fetchTimeseries(range: string = '7d'): Promise<TimeseriesD
  * Busca dados de heatmap
  */
 export async function fetchHeatmap(): Promise<HeatmapData> {
+  // Modo demo: retorna dados mockados
+  if (DEMO_MODE) {
+    return Promise.resolve({
+      heatmap: mockHeatmap.map((point) => point.count),
+      date: new Date().toISOString().split('T')[0],
+    });
+  }
+
   const url = `${API_BASE}/metrics/heatmap`;
 
   const response = await fetch(url, {
@@ -294,19 +380,19 @@ export function exportCSV(range: string = '7d', status?: string): void {
   }
 
   const url = `${API_BASE}/reports/export.csv?${params.toString()}`;
-  
+
   // Cria link temporário para download
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', `orders-${range}.csv`);
-  
+
   // Adiciona headers via fetch e baixa
   fetch(url, {
     method: 'GET',
     headers: getHeaders(),
   })
-    .then(response => response.blob())
-    .then(blob => {
+    .then((response) => response.blob())
+    .then((blob) => {
       const blobUrl = window.URL.createObjectURL(blob);
       link.href = blobUrl;
       document.body.appendChild(link);
@@ -314,7 +400,7 @@ export function exportCSV(range: string = '7d', status?: string): void {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error downloading CSV:', error);
       throw error;
     });
@@ -365,4 +451,3 @@ export function getStatusLabel(status: string): string {
       return status;
   }
 }
-

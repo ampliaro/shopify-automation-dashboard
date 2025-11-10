@@ -2,27 +2,29 @@
    Variables e Reset
    ============================================================================ */
 :root {
-  --primary-color: #2196F3;
-  --success-color: #4CAF50;
-  --error-color: #F44336;
-  --warning-color: #FF9800;
+  --primary-color: #2196f3;
+  --success-color: #4caf50;
+  --error-color: #f44336;
+  --warning-color: #ff9800;
   --neutral-color: #757575;
-  
+
   --bg-color: #f5f5f5;
   --surface-color: #ffffff;
   --border-color: #e0e0e0;
   --text-primary: #212121;
   --text-secondary: #757575;
   --hover-bg: #fafafa;
-  
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 20px rgba(0,0,0,0.12);
-  
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+
   --radius: 8px;
   --radius-sm: 4px;
-  
-  --font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+
+  --font-family:
+    -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial,
+    sans-serif;
 }
 
 /* Dark Mode Variables */
@@ -33,10 +35,10 @@ body.dark-mode {
   --text-primary: #e6edf3;
   --text-secondary: #8b949e;
   --hover-bg: #262c36;
-  
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.6);
-  --shadow-lg: 0 10px 20px rgba(0,0,0,0.7);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.7);
 }
 
 /* Dark Mode - Containers */
@@ -108,8 +110,8 @@ body.dark-mode .recharts-tooltip-wrapper .recharts-default-tooltip {
 }
 
 /* Dark Mode - Heatmap cells vazias */
-body.dark-mode .heatmap-cell[style*="background: #f5f5f5"],
-body.dark-mode .heatmap-cell[style*="background:#f5f5f5"] {
+body.dark-mode .heatmap-cell[style*='background: #f5f5f5'],
+body.dark-mode .heatmap-cell[style*='background:#f5f5f5'] {
   background: #161b22 !important;
 }
 
@@ -210,7 +212,7 @@ body.dark-mode .order-id {
 
 /* Dark Mode - Close button */
 body.dark-mode .close-btn:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Dark Mode - Clear filter button */
@@ -256,7 +258,10 @@ button,
 input,
 select,
 textarea {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 * {
@@ -346,7 +351,7 @@ button {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #1976D2;
+  background-color: #1976d2;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -385,7 +390,7 @@ button {
 }
 
 .btn-success:hover:not(:disabled) {
-  background-color: #388E3C;
+  background-color: #388e3c;
 }
 
 button:disabled {
@@ -405,14 +410,14 @@ button:disabled {
 }
 
 .notification.success {
-  background-color: #E8F5E9;
-  color: #2E7D32;
+  background-color: #e8f5e9;
+  color: #2e7d32;
   border-left: 4px solid var(--success-color);
 }
 
 .notification.error {
-  background-color: #FFEBEE;
-  color: #C62828;
+  background-color: #ffebee;
+  color: #c62828;
   border-left: 4px solid var(--error-color);
 }
 
@@ -431,8 +436,8 @@ button:disabled {
    Alerta de Taxa de Falha
    ============================================================================ */
 .alert-banner {
-  background-color: #FFF3E0;
-  color: #E65100;
+  background-color: #fff3e0;
+  color: #e65100;
   padding: 12px 16px;
   border-radius: var(--radius-sm);
   border-left: 4px solid var(--warning-color);
@@ -489,7 +494,9 @@ button:disabled {
   padding: 18px;
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -788,7 +795,7 @@ body.dark-mode .bulk-actions-bar span {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -810,7 +817,7 @@ body.dark-mode .bulk-actions-bar span {
 .legend-gradient {
   width: 120px;
   height: 8px;
-  background: linear-gradient(to right, #f5f5f5, #E8F5E9, #C8E6C9, #81C784, #66BB6A, #4CAF50);
+  background: linear-gradient(to right, #f5f5f5, #e8f5e9, #c8e6c9, #81c784, #66bb6a, #4caf50);
   border-radius: 4px;
 }
 
@@ -1030,7 +1037,7 @@ body.dark-mode .filter-group label {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  background: #FFF3E0;
+  background: #fff3e0;
   border-radius: var(--radius);
   margin-bottom: 16px;
   font-size: 14px;
@@ -1070,7 +1077,7 @@ body.dark-mode .filter-group label {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  background: #E3F2FD;
+  background: #e3f2fd;
   border-radius: var(--radius);
   margin-bottom: 16px;
   font-size: 14px;
@@ -1143,7 +1150,7 @@ body.dark-mode .orders-table tbody tr {
   text-align: center;
 }
 
-.checkbox-col input[type="checkbox"] {
+.checkbox-col input[type='checkbox'] {
   cursor: pointer;
   width: 16px;
   height: 16px;
@@ -1225,7 +1232,7 @@ body.dark-mode .orders-table tbody tr {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 999;
   animation: fadeIn 0.3s ease;
 }
@@ -1247,8 +1254,12 @@ body.dark-mode .orders-table tbody tr {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInRight {
@@ -1298,7 +1309,7 @@ body.dark-mode .drawer-header h2 {
 }
 
 .close-btn:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .drawer-content {
@@ -1500,8 +1511,12 @@ body.dark-mode .drawer-section h3 {
 }
 
 @keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-text {
@@ -1591,5 +1606,93 @@ body.dark-mode .drawer-section h3 {
 
   .metric-value {
     font-size: 24px;
+  }
+}
+
+/* ============================================================================
+   Demo Banner
+   ============================================================================ */
+.demo-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.demo-banner-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.demo-badge {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.demo-text {
+  flex: 1;
+  min-width: 200px;
+  font-size: 0.95rem;
+}
+
+.demo-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.demo-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.2s;
+}
+
+.demo-link:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (max-width: 768px) {
+  .demo-banner {
+    padding: 1rem;
+  }
+
+  .demo-banner-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .demo-actions {
+    width: 100%;
+  }
+
+  .demo-link {
+    flex: 1;
+    text-align: center;
   }
 }
