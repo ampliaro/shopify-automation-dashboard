@@ -358,11 +358,11 @@ Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para detalhes.
 
 ## 🤝 Contato
 
-**Rafael Gregório**
+**Studio Ampliaro**
 
-- 🔗 Portfolio: [seu-site.com](https://seu-site.com)
-- 💼 LinkedIn: [linkedin.com/in/seu-perfil](https://linkedin.com/in/seu-perfil)
-- 📧 Email: [seu-email@example.com](mailto:seu-email@example.com)
+- 🔗 Website: [ampliaro.com](https://ampliaro.com)
+- 💼 GitHub: [github.com/ampliaro](https://github.com/ampliaro)
+- 📧 Email: [studio@ampliaro.com](mailto:studio@ampliaro.com)
 
 ---
 

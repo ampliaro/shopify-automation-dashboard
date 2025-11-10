@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 const getContactUrl = (): string => {
   return (
     import.meta.env.VITE_CONTACT_URL ||
-    'mailto:contato@studioampliaro.com?subject=Interesse%20no%20Shopify%20Dashboard'
+    'mailto:studio@ampliaro.com?subject=Interesse%20no%20Shopify%20Dashboard'
   );
 };
 

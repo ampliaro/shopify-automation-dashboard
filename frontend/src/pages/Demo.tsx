@@ -152,7 +152,7 @@ export default function Demo() {
   const getContactUrl = (): string => {
     return (
       import.meta.env.VITE_CONTACT_URL ||
-      'mailto:contato@exemplo.com?subject=Interesse%20no%20Dashboard%20Shopify'
+      'mailto:studio@ampliaro.com?subject=Interesse%20no%20Dashboard%20Shopify'
     );
   };
 
